@@ -9,15 +9,15 @@
 int OTPStreamCipherTransmitterTest::testConstructor(){
     int result = 1;
     unsigned long iv = 123456789;
-    OTPStreamCipherTransmitter streamCipher = OTPStreamCipherTransmitter(4, iv);
+    Crypto::OTPStreamCipherTransmitter<uint32_t, 4, uint32_t, 4> streamCipher(iv);
     if(streamCipher.streamByteLocation != 0){
         std::cout << "\tFAILED: Expected streamByteLocation to be 0 but it was " << streamCipher.streamByteLocation << '\n';
         result = 0;
     }
-    if(streamCipher.messageByteLength != 4){
-        std::cout << "\tFAILED: Expected messageByteLength to eqaul 4 but it was " << streamCipher.messageByteLength << '\n'; 
-        result = 0;
-    }
+    // if(streamCipher.MSize != 4){
+    //     std::cout << "\tFAILED: Expected messageByteLength to eqaul 4 but it was " << streamCipher.messageByteLength << '\n'; 
+    //     result = 0;
+    // }
     if(result == 1){
         std::cout << "OTPStreamCipherTransmitterTest#testConstructor: PASSED\n\n";
     }else{
@@ -29,14 +29,14 @@ int OTPStreamCipherTransmitterTest::testConstructor(){
 int OTPStreamCipherTransmitterTest::testOtpByte(){
     int result = 1;
     unsigned long iv = 123456789;
-    OTPStreamCipherTransmitter streamCipher = OTPStreamCipherTransmitter(4, iv);
+    Crypto::OTPStreamCipherTransmitter<uint32_t, 4, uint32_t, 4> streamCipher(iv);
     int encryptedMessages[256];
     for(int i = 0; i < 256; i++){
         int encryptedMsg = streamCipher.otpByte(i);
         encryptedMessages[i] = encryptedMsg;
     } 
     std::default_random_engine engine(iv);
-    std::uniform_int_distribution<int> dist(0,255);
+    std::uniform_int_distribution<uint8_t> dist(0,255);
 
     for(int i = 0; i < 256; i++){
         int otp = dist(engine);
@@ -57,20 +57,20 @@ int OTPStreamCipherTransmitterTest::testOtpByte(){
 int OTPStreamCipherTransmitterTest::testGetNumberFromBytes(){
     int result = 1;
     unsigned long iv = 1;
-    OTPStreamCipherTransmitter streamCipher = OTPStreamCipherTransmitter(4, iv);
-    int testNum1[4] = {0, 0, 0, 143};
-    int testNum2[4] = {0, 0, 255, 0};
-    int testNum3[4] = {1, 1, 1, 1};
-    int testNum4[4] = {113, 113, 113, 113};
-    unsigned long expectedAnswer1 = 143;
-    unsigned long expectedAnswer2 = 65280;
-    unsigned long expectedAnswer3 = 16843009;
-    unsigned long expectedAnswer4 = 1903260017;
+    Crypto::OTPStreamCipherTransmitter<uint32_t, 4, uint32_t, 4>streamCipher(iv);
+    uint8_t testNum1[4] = {0, 0, 0, 143};
+    uint8_t testNum2[4] = {0, 0, 255, 0};
+    uint8_t testNum3[4] = {1, 1, 1, 1};
+    uint8_t testNum4[4] = {113, 113, 113, 113};
+    uint32_t expectedAnswer1 = 143;
+    uint32_t expectedAnswer2 = 65280;
+    uint32_t expectedAnswer3 = 16843009;
+    uint32_t expectedAnswer4 = 1903260017;
 
-    unsigned long ans1 = streamCipher.getNumberFromBytes(testNum1);
-    unsigned long ans2 = streamCipher.getNumberFromBytes(testNum2);
-    unsigned long ans3 = streamCipher.getNumberFromBytes(testNum3);
-    unsigned long ans4 = streamCipher.getNumberFromBytes(testNum4);
+    uint32_t ans1 = streamCipher.getNumberFromBytes(testNum1);
+    uint32_t ans2 = streamCipher.getNumberFromBytes(testNum2);
+    uint32_t ans3 = streamCipher.getNumberFromBytes(testNum3);
+    uint32_t ans4 = streamCipher.getNumberFromBytes(testNum4);
 
     if(ans1 != expectedAnswer1){
         result = 0;
@@ -102,13 +102,13 @@ int OTPStreamCipherTransmitterTest::testGetMessageToTransmit(){
     int result = 1;
 
     unsigned long iv = 1214161820;
-    int byteLen = 4;
+    uint8_t byteLen = 4;
 
-    OTPStreamCipherTransmitter streamCipher = OTPStreamCipherTransmitter(byteLen, iv);
-    unsigned long message1 = 1903260017;
-    unsigned long message2 = 779283;
-    unsigned long long encodedMessage1 = streamCipher.getMessageToTransmit(message1);
-    unsigned long long encodedMessage2 = streamCipher.getMessageToTransmit(message2);
+    Crypto::OTPStreamCipherTransmitter<uint32_t, 4, uint32_t, 4> streamCipher(iv);
+    uint32_t message1 = 1903260017;
+    uint32_t message2 = 779283;
+    uint64_t encodedMessage1 = streamCipher.getMessageToTransmit(message1);
+    uint64_t encodedMessage2 = streamCipher.getMessageToTransmit(message2);
 
     // get last 4 bytes of encodedMessage1
     unsigned long messageCount1 = encodedMessage1 & ULONG_MAX;
@@ -125,16 +125,16 @@ int OTPStreamCipherTransmitterTest::testGetMessageToTransmit(){
     }
 
     std::default_random_engine engine(iv);
-    std::uniform_int_distribution<int> dist(0,255);
+    std::uniform_int_distribution<uint8_t> dist(0,255);
 
-    unsigned long otpKey = 0;
+    uint32_t otpKey = 0;
     // start stream from 0
     for(int i = 0; i < byteLen; i++){
-        int randomByte = dist(engine);
+        uint8_t randomByte = dist(engine);
         otpKey += randomByte * std::pow(256, i);
     }
 
-    unsigned long decodedMessage1 = eMessage1 ^ otpKey;
+    uint32_t decodedMessage1 = eMessage1 ^ otpKey;
 
     // message 2
     if(messageCount2 != 1){
@@ -144,18 +144,18 @@ int OTPStreamCipherTransmitterTest::testGetMessageToTransmit(){
 
     std::default_random_engine engine2(iv);
     std::uniform_int_distribution<int> dist2(0,255);
-    unsigned long otpKey2 = 0;
+    uint32_t otpKey2 = 0;
     //prep
     for(int i = 0; i < byteLen; i++){
         dist2(engine2);
     }
     // get correct stream
     for(int i = 0; i < byteLen; i++){
-        int randomByte = dist2(engine2);
+        uint8_t randomByte = dist2(engine2);
         otpKey2 += randomByte * std::pow(256, i);
     }
 
-    unsigned long decodedMessage2 = eMessage2 ^ otpKey2;
+    uint32_t decodedMessage2 = eMessage2 ^ otpKey2;
     
     if(message1 != decodedMessage1){
         result = 0;
@@ -177,33 +177,33 @@ int OTPStreamCipherTransmitterTest::testGetMessageToTransmit(){
 int OTPStreamCipherTransmitterTest::testOtpMessage(){
     int result = 1;
 
-    unsigned long iv = 2468101214161820;
-    int byteLen = 5;
+    uint32_t iv = 2468101214;
+    int byteLen = 4;
 
-    OTPStreamCipherTransmitter streamCipher = OTPStreamCipherTransmitter(byteLen, iv);
-    unsigned long message1 = 1903260017;
-    unsigned long message2 = 779283;
-    unsigned long encodedMessage1 = streamCipher.otpMessage(message1);
-    unsigned long encodedMessage2 = streamCipher.otpMessage(message2);
+    Crypto::OTPStreamCipherTransmitter<uint32_t, 4, uint16_t, 2> streamCipher(iv);
+    uint32_t message1 = 1903260017;
+    uint32_t message2 = 779283;
+    uint32_t encodedMessage1 = streamCipher.otpMessage(message1);
+    uint32_t encodedMessage2 = streamCipher.otpMessage(message2);
 
     std::default_random_engine engine(iv);
-    std::uniform_int_distribution<int> dist(0,255);
+    std::uniform_int_distribution<uint8_t> dist(0,255);
 
-    unsigned long otpKey = 0;
+    uint32_t otpKey = 0;
     for(int i = 0; i < byteLen; i++){
-        int randomByte = dist(engine);
+        uint8_t randomByte = dist(engine);
         otpKey += randomByte * std::pow(256, i);
     }
 
-    unsigned long decodedMessage1 = encodedMessage1 ^ otpKey;
+    uint32_t decodedMessage1 = encodedMessage1 ^ otpKey;
 
     otpKey = 0;
     for(int i = 0; i < byteLen; i++){
-        int randomByte = dist(engine);
+        uint8_t randomByte = dist(engine);
         otpKey += randomByte * std::pow(256, i);
     }
 
-    unsigned long decodedMessage2 = encodedMessage2 ^ otpKey;
+    uint32_t decodedMessage2 = encodedMessage2 ^ otpKey;
     
     if(message1 != decodedMessage1){
         result = 0;
