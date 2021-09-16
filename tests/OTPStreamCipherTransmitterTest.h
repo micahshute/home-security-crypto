@@ -10,6 +10,7 @@ class OTPStreamCipherTransmitterTest{
         int testGetNumberFromBytes();
         int testOtpMessage();
         int testGetMessageToTransmit();
+        int testStreamCountRollover();
 };
 
 #endif

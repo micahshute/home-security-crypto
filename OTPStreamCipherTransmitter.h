@@ -23,6 +23,7 @@ namespace Crypto{
             MType otpMessage(MType message);
             MType getNumberFromBytes(uint8_t* bytes);
             CType getMessagesSentCount();
+            CType getByteMessageStartCount();
             uint64_t getMessageToTransmit(MType message); 
     };
 };
@@ -75,17 +76,17 @@ CType Crypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getMessage
 template <typename MType, size_t MSize, typename CType, size_t CSize>
 uint64_t Crypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getMessageToTransmit(MType message){
     uint8_t bytes[MSize];
-    MType messageNumber = getMessagesSentCount();
+    CType streamByteStart = this->streamByteLocation;
     MType encryptedMessage = otpMessage(message);
     getBytes(encryptedMessage, MSize, bytes);
-    uint8_t  messageCountBytes[CSize];
-    Crypto::num2bytes((uint64_t)messageNumber, CSize, messageCountBytes);
+    uint8_t streamByteStartBytes[CSize];
+    Crypto::num2bytes((uint64_t)streamByteStart, CSize, streamByteStartBytes);
     uint8_t fullMessage[MSize + CSize];
     for(int i = 0; i < MSize; i++){
         fullMessage[i] = bytes[i];
     }
     for(int i = 0; i < CSize; i++){
-        fullMessage[i + MSize] = messageCountBytes[i];
+        fullMessage[i + MSize] = streamByteStartBytes[i];
     }
     return (uint64_t)Crypto::bytes2num((MSize + CSize), fullMessage);
 };

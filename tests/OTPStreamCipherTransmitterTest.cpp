@@ -111,11 +111,11 @@ int OTPStreamCipherTransmitterTest::testGetMessageToTransmit(){
     uint64_t encodedMessage2 = streamCipher.getMessageToTransmit(message2);
 
     // get last 4 bytes of encodedMessage1
-    unsigned long messageCount1 = encodedMessage1 & ULONG_MAX;
-    unsigned long messageCount2 = encodedMessage2 & ULONG_MAX;
+    uint32_t messageCount1 = encodedMessage1 & ULONG_MAX;
+    uint32_t messageCount2 = encodedMessage2 & ULONG_MAX;
 
-    unsigned long eMessage1 = encodedMessage1 >> (8*4);
-    unsigned long eMessage2 = encodedMessage2 >> (8*4);
+    uint32_t eMessage1 = encodedMessage1 >> (8*4);
+    uint32_t eMessage2 = encodedMessage2 >> (8*4);
 
     // Message 1
 
@@ -137,7 +137,7 @@ int OTPStreamCipherTransmitterTest::testGetMessageToTransmit(){
     uint32_t decodedMessage1 = eMessage1 ^ otpKey;
 
     // message 2
-    if(messageCount2 != 1){
+    if(messageCount2 != byteLen){
         result = 0;
         std::cout << "\t FAILED: Expected " << messageCount2 << " to eq 1\n";
     }
@@ -219,6 +219,54 @@ int OTPStreamCipherTransmitterTest::testOtpMessage(){
     }else{
         std::cout << "OTPStreamCipherTransmitterTest#testOtpMessage: FAILED\n\n";
     }
+    return result;
+}
+
+int OTPStreamCipherTransmitterTest::testStreamCountRollover(){
+    int result = 1;
+
+    uint16_t iv = 8192;
+    int byteLen = 2;
+    Crypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1> streamCipher(iv);
+
+    uint16_t message = 24239;
+    uint8_t maxCount = 255;
+
+    std::default_random_engine engine(iv);
+    std::uniform_int_distribution<uint8_t> dist(0,255);
+    
+    for(int i = 0; i < 600; i++){
+        uint64_t fullMessage = streamCipher.getMessageToTransmit(message);
+
+        uint16_t eMessage = fullMessage >> (16);
+        uint8_t msgCount = fullMessage & maxCount;
+        if(msgCount != (i % 256)){
+            result = 0;
+            std::cout << "FAILED: Expected message count " << msgCount << " to equal " << (i % 256) << '\n';
+            break;
+        }
+
+        uint16_t otpKey = 0;
+        for(int j = 0; j < byteLen; j++){
+            uint8_t randomByte = dist(engine);
+            otpKey += randomByte * std::pow(256, i);
+        }
+
+        uint16_t decodedMessage = eMessage ^ otpKey;
+
+        if(decodedMessage != message){
+            result = 0;
+            std::cout << "FAILED: Expected decoded message " << decodedMessage << " to equal " << message << '\n';
+        }
+
+    }
+
+    if(result == 1){
+        std::cout << "OTPStreamCipherTransmitterTest#testStreamCountRollover: PASSED\n\n";
+    }else{
+        std::cout << "OTPStreamCipherTransmitterTest#testStreamCountRollover: FAILED\n\n";
+    }
+
     return result;
 }
 
