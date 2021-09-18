@@ -1,5 +1,6 @@
 #include <iostream>
 #include "OTPStreamCipherTransmitterTest.h"
+#include "OTPStreamCipherReceiverTest.h"
 
 int main(){
     std::cout << "\n\n\n";
@@ -8,7 +9,12 @@ int main(){
 
     OTPStreamCipherTransmitterTest otpStreamCipherTest;
     totalTests++;
+    OTPStreamCipherReceiverTest otpStreamCipherReceiverTest;
+    totalTests++;
     if(!otpStreamCipherTest.run()){
+        failedTests++;
+    }
+    if(!otpStreamCipherReceiverTest.run()){
         failedTests++;
     }
 

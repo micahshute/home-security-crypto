@@ -12,12 +12,12 @@ namespace Crypto{
 };
 
 template <typename T>
-T rolloverDifference(T largerNum, T smallerNum){
-    if(largerNum > smallerNum){
+T Crypto::rolloverDifference(T largerNum, T smallerNum){
+    if(largerNum >= smallerNum){
         return largerNum - smallerNum;
     }else{
         int byteCount = sizeof(largerNum);
-        T maxSize = (T)(std::pow(2, byteCount) - 1);
+        T maxSize = (T)(std::pow(2, 8 * byteCount) - 1);
         T difference = maxSize - smallerNum + 1 + largerNum;
         return difference;
     }
