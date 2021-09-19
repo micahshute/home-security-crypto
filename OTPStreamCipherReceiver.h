@@ -43,12 +43,12 @@ template <typename MType, size_t MSize, typename CType, size_t CSize>
 MType Crypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::parseMessage(uint64_t fullMessage){
     CType maxMessageCountNum = (CType)(std::pow(2, 8*CSize) - 1);
     CType messageCountBytes = fullMessage & maxMessageCountNum;
-    MType encodedMessage = fullMessage >> (8 * MSize);
+    MType encodedMessage = fullMessage >> (8 * CSize);
     CType shortStreamByteLocation = (CType)(streamByteLocation % (uint64_t)std::pow(2, CSize * 8 ));
     CType missedMessages = Crypto::rolloverDifference<CType>(messageCountBytes, shortStreamByteLocation);
     uint8_t maxMissedMessages = 100 * MSize;
-    
-    if(missedMessages > maxMissedMessages){
+
+    if(missedMessages > maxMissedMessages || missedMessages % MSize != 0){
         return 0;
     }
     this->lastStreamByteLocation = streamByteLocation;
