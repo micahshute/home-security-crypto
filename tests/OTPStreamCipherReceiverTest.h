@@ -6,6 +6,7 @@ class OTPStreamCipherReceiverTest{
     public: 
         int run();
         int testParseMessage();
+        int testResetStreamToLastValue();
 };
 
 #endif

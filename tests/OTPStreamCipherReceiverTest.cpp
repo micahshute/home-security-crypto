@@ -157,6 +157,103 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
     return result;
 };
 
+int OTPStreamCipherReceiverTest::testResetStreamToLastValue(){
+    int result = 1;
+
+    uint16_t iv = 23513;
+    uint16_t message = 8072;
+
+    Crypto::OTPStreamCipherTransmitter<uint16_t, 2, uint16_t, 2>xmitter(iv);
+    Crypto::OTPStreamCipherReceiver<uint16_t, 2, uint16_t, 2>receiver(iv);
+
+    // Run 100 times
+    // send a faulty message
+    // ensure without reset it fails
+    // ensure with reset it does not fail
+
+    for(int i = 0; i < 100; i++){
+        uint32_t xmittingMessage = (uint32_t)xmitter.getMessageToTransmit(message);
+        uint16_t decodedMessage = receiver.parseMessage(xmittingMessage);
+        if(decodedMessage != 0){
+            result = 0; 
+            std::cout << "FAILED missedMessageCheck: " << " Expeccted decoded message " << decodedMessage << " to equal 0" << '\n'; 
+            break;
+        }
+    }
+    
+    // faked message -> last byte (messageStreamLocation) must 
+    // be within 100 of the last sent message. Let's make it 117
+    // 10101010 10101010 01110101 = 11184757
+    // First 2 bytes don't matter, the last one determines if it will be "used"
+    uint32_t fakedMessage = 11184757;
+    uint16_t decodedMessage = receiver.parseMessage(fakedMessage);
+    if(decodedMessage == 0){
+        result = 0;
+        std::cout << "FAILED: Expected faked message to fool receiver";
+    }
+
+    // Expect the xmitter and receiver to be un-synced now:
+    uint32_t failedXmittingMessage = (uint32_t)xmitter.getMessageToTransmit(message);
+    uint16_t failedDecodedMessage = receiver.parseMessage(failedXmittingMessage);
+    // Expeect ddecodedMessage to be 0
+    if(failedDecodedMessage != 0){
+        result = 0;
+        std::cout << "FAILED: Expected receiver to reject stream location earlier than current location";
+    }
+
+
+    // Now, let's do it but reset the receiver when we realized the message was spoofed:
+
+    Crypto::OTPStreamCipherTransmitter<uint16_t, 2, uint16_t, 2>xmitter2(iv);
+    Crypto::OTPStreamCipherReceiver<uint16_t, 2, uint16_t, 2>receiver2(iv);
+
+    // Run 100 times
+    // send a faulty message
+    // ensure without reset it fails
+    // ensure with reset it does not fail
+
+    for(int i = 0; i < 100; i++){
+        uint32_t xmittingMessage = (uint32_t)xmitter2.getMessageToTransmit(message);
+        uint16_t decodedMessage = receiver2.parseMessage(xmittingMessage);
+        if(decodedMessage != 0){
+            result = 0; 
+            std::cout << "FAILED missedMessageCheck2: " << " Expeccted decoded message " << decodedMessage << " to equal 0" << '\n'; 
+            break;
+        }
+    }
+    
+    // faked message -> last byte (messageStreamLocation) must 
+    // be within 100 of the last sent message. Let's make it 117
+    // 10101010 10101010 01110101 = 11184757
+    // First 2 bytes don't matter, the last one determines if it will be "used"
+    uint32_t fakedMessage2 = 11184757;
+    uint16_t decodedMessage2 = receiver2.parseMessage(fakedMessage);
+    if(decodedMessage2 == 0){
+        result = 0;
+        std::cout << "FAILED: Expected faked message to fool receiver (2)";
+    }
+
+    // This time, reset the receiver:
+    receiver2.resetStreamToLastValue();
+
+    // Expect the xmitter and receiver to be re-synced now:
+    uint32_t correctXmittingMessage = (uint32_t)xmitter2.getMessageToTransmit(message);
+    uint16_t correctDecodedMessage = receiver2.parseMessage(failedXmittingMessage);
+    // Expeect ddecodedMessage to be 0
+    if(correctDecodedMessage != message){
+        result = 0;
+        std::cout << "FAILED: Expected the receiver and transitter to be re-synced";
+    }
+
+
+    if(result == 1){
+        std::cout << "OTPStreamCipherReceiverTest#testParseMessage: PASSED\n\n";
+    }else{
+        std::cout << "OTPStreamCipherReceiverTest#testParseMessage: FAILED\n\n";
+    }
+    return result;
+}
+
 
 int OTPStreamCipherReceiverTest::run(){
     int result = 1;
