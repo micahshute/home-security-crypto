@@ -3,6 +3,7 @@
 #include <cmath>
 #include "OTPStreamCipherTransmitterTest.h"
 #include "../OTPStreamCipherTransmitter.h"
+#include "../MSPrng.h"
 
 #define ULONG_MAX 4294967295
 
@@ -35,11 +36,13 @@ int OTPStreamCipherTransmitterTest::testOtpByte(){
         int encryptedMsg = streamCipher.otpByte(i);
         encryptedMessages[i] = encryptedMsg;
     } 
-    std::default_random_engine engine(iv);
-    std::uniform_int_distribution<uint8_t> dist(0,255);
+    // std::default_random_engine engine(iv);
+    // std::uniform_int_distribution<uint8_t> dist(0,255);
+    MSCrypto::MSPrng<uint8_t> rand(0, 255, iv);
 
     for(int i = 0; i < 256; i++){
-        int otp = dist(engine);
+        // int otp = dist(engine);
+        int otp = rand.get();
         int decrypted = otp ^ encryptedMessages[i];
         if(decrypted != i){
             result = 0;
@@ -124,13 +127,15 @@ int OTPStreamCipherTransmitterTest::testGetMessageToTransmit(){
         std::cout << "\t FAILED: Expeted " << messageCount1 << " to eq 0\n";
     }
 
-    std::default_random_engine engine(iv);
-    std::uniform_int_distribution<uint8_t> dist(0,255);
+    // std::default_random_engine engine(iv);
+    // std::uniform_int_distribution<uint8_t> dist(0,255);
+    MSCrypto::MSPrng<uint8_t> rand(0, 255, iv);
 
     uint32_t otpKey = 0;
     // start stream from 0
     for(int i = 0; i < byteLen; i++){
-        uint8_t randomByte = dist(engine);
+        // uint8_t randomByte = dist(engine);
+        uint8_t randomByte = rand.get();
         otpKey += randomByte * std::pow(256, i);
     }
 
@@ -142,16 +147,19 @@ int OTPStreamCipherTransmitterTest::testGetMessageToTransmit(){
         std::cout << "\t FAILED: Expected " << messageCount2 << " to eq 1\n";
     }
 
-    std::default_random_engine engine2(iv);
-    std::uniform_int_distribution<int> dist2(0,255);
+    // std::default_random_engine engine2(iv);
+    // std::uniform_int_distribution<int> dist2(0,255);
+    MSCrypto::MSPrng<uint8_t> rand2(0,255,iv);
     uint32_t otpKey2 = 0;
     //prep
     for(int i = 0; i < byteLen; i++){
-        dist2(engine2);
+        rand2.get();
+        // dist2(engine2);
     }
     // get correct stream
     for(int i = 0; i < byteLen; i++){
-        uint8_t randomByte = dist2(engine2);
+        // uint8_t randomByte = dist2(engine2);
+        uint8_t randomByte = rand2.get();
         otpKey2 += randomByte * std::pow(256, i);
     }
 
@@ -186,12 +194,14 @@ int OTPStreamCipherTransmitterTest::testOtpMessage(){
     uint32_t encodedMessage1 = streamCipher.otpMessage(message1);
     uint32_t encodedMessage2 = streamCipher.otpMessage(message2);
 
-    std::default_random_engine engine(iv);
-    std::uniform_int_distribution<uint8_t> dist(0,255);
+    // std::default_random_engine engine(iv);
+    // std::uniform_int_distribution<uint8_t> dist(0,255);
+    MSCrypto::MSPrng<uint8_t> rand(0, 255, iv);
 
     uint32_t otpKey = 0;
     for(int i = 0; i < byteLen; i++){
-        uint8_t randomByte = dist(engine);
+        // uint8_t randomByte = dist(engine);
+        uint8_t randomByte = rand.get();
         otpKey += randomByte * std::pow(256, i);
     }
 
@@ -199,7 +209,8 @@ int OTPStreamCipherTransmitterTest::testOtpMessage(){
 
     otpKey = 0;
     for(int i = 0; i < byteLen; i++){
-        uint8_t randomByte = dist(engine);
+        // uint8_t randomByte = dist(engine);
+        uint8_t randomByte = rand.get();
         otpKey += randomByte * std::pow(256, i);
     }
 
@@ -232,8 +243,9 @@ int OTPStreamCipherTransmitterTest::testStreamCountRollover(){
     uint16_t message = 24239;
     uint8_t maxCount = 255;
 
-    std::default_random_engine engine(iv);
-    std::uniform_int_distribution<uint8_t> dist(0,255);
+    // std::default_random_engine engine(iv);
+    // std::uniform_int_distribution<uint8_t> dist(0,255);
+    MSCrypto::MSPrng<uint8_t> rand(0, 255, iv);
 
     uint8_t testByteCount = 0;
     
@@ -250,7 +262,8 @@ int OTPStreamCipherTransmitterTest::testStreamCountRollover(){
         
         uint16_t otpKey = 0;
         for(int j = 0; j < byteLen; j++){
-            uint8_t randomByte = dist(engine);
+            // uint8_t randomByte = dist(engine);
+            uint8_t randomByte = rand.get();
             testByteCount++;
             otpKey += randomByte * std::pow(256, j);
         }

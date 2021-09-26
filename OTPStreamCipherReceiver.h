@@ -4,7 +4,7 @@
 #include <cmath>
 #include <cstdint>
 #include "MSCrypto.h"
-#include "StandardRandomStrategy.h"
+#include "ArduinoRandomStrategy.h"
 
 namespace MSCrypto{
 
@@ -12,7 +12,7 @@ namespace MSCrypto{
     class OTPStreamCipherReceiver{
         private:
             MType seed;
-            StandardRandomStrategy<uint8_t> randomStrategy;
+            ArduinoRandomStrategy<uint8_t> randomStrategy;
             uint64_t streamByteLocation;
             uint64_t lastStreamByteLocation;
             uint8_t getRandomByte();
@@ -26,7 +26,7 @@ namespace MSCrypto{
 template <typename MType, size_t MSize, typename CType, size_t CSize>
 MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::OTPStreamCipherReceiver(MType seed){
     this->seed = seed;
-    this->randomStrategy = StandardRandomStrategy<uint8_t>(seed, 0, 255);
+    this->randomStrategy = ArduinoRandomStrategy<uint8_t>(seed, 0, 255);
     this->lastStreamByteLocation = 0; 
     this->streamByteLocation = 0;
 };

@@ -11,7 +11,7 @@ namespace MSCrypto{
         private:
             MSCrypto::MSPrng<uint8_t> prng;
         public:
-            ArduinoRandomStrategy(T seed, T min, T max);
+            ArduinoRandomStrategy(uint32_t seed, T min, T max);
             ArduinoRandomStrategy();
             T getRandomNumber();
             bool rollbackStreamLocation(uint16_t byCount);
@@ -23,7 +23,7 @@ template <typename T>
 MSCrypto::ArduinoRandomStrategy<T>::ArduinoRandomStrategy(){};
 
 template <typename T>
-MSCrypto::ArduinoRandomStrategy<T>::ArduinoRandomStrategy(T seed, T min, T max) : 
+MSCrypto::ArduinoRandomStrategy<T>::ArduinoRandomStrategy(uint32_t seed, T min, T max) : 
 MSCrypto::RandomStrategy<T>::RandomStrategy(seed, min, max){
     this->prng = MSCrypto::MSPrng<uint8_t>(0,255,seed);
 };
