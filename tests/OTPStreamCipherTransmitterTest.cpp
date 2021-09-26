@@ -28,7 +28,7 @@ int OTPStreamCipherTransmitterTest::testConstructor(){
 
 int OTPStreamCipherTransmitterTest::testOtpByte(){
     int result = 1;
-    unsigned long iv = 123456789;
+    uint32_t iv = 12345;
     MSCrypto::OTPStreamCipherTransmitter<uint32_t, 4, uint32_t, 4> streamCipher(iv);
     int encryptedMessages[256];
     for(int i = 0; i < 256; i++){
@@ -225,7 +225,7 @@ int OTPStreamCipherTransmitterTest::testOtpMessage(){
 int OTPStreamCipherTransmitterTest::testStreamCountRollover(){
     int result = 1;
 
-    uint16_t iv = 8192;
+    uint32_t iv = 8192;
     int byteLen = 2;
     MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1> streamCipher(iv);
 
@@ -234,29 +234,32 @@ int OTPStreamCipherTransmitterTest::testStreamCountRollover(){
 
     std::default_random_engine engine(iv);
     std::uniform_int_distribution<uint8_t> dist(0,255);
+
+    uint8_t testByteCount = 0;
     
     for(int i = 0; i < 600; i++){
         uint64_t fullMessage = streamCipher.getMessageToTransmit(message);
 
-        uint16_t eMessage = fullMessage >> (16);
+        uint16_t eMessage = fullMessage >> 8;
         uint8_t msgCount = fullMessage & maxCount;
-        if(msgCount != (i % 256)){
+        if(msgCount != testByteCount){
             result = 0;
-            std::cout << "FAILED: Expected message count " << msgCount << " to equal " << (i % 256) << '\n';
+            std::cout << "FAILED: Expected message count " << (int)msgCount << " to equal " << (int)testByteCount << '\n';
             break;
         }
-
+        
         uint16_t otpKey = 0;
         for(int j = 0; j < byteLen; j++){
             uint8_t randomByte = dist(engine);
-            otpKey += randomByte * std::pow(256, i);
+            testByteCount++;
+            otpKey += randomByte * std::pow(256, j);
         }
-
         uint16_t decodedMessage = eMessage ^ otpKey;
 
         if(decodedMessage != message){
             result = 0;
-            std::cout << "FAILED: Expected decoded message " << decodedMessage << " to equal " << message << '\n';
+            std::cout << "FAILED: Expected "<< i << " decoded message " << decodedMessage << " to equal " << message << '\n';
+            break;
         }
 
     }
@@ -285,6 +288,9 @@ int OTPStreamCipherTransmitterTest::run(){
         result = 0;
     }
     if(!testGetMessageToTransmit()){
+        result = 0;
+    }
+    if(!testStreamCountRollover()){
         result = 0;
     }
     return result;

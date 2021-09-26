@@ -2,6 +2,7 @@
 #include "OTPStreamCipherReceiverTest.h"
 #include "../OTPStreamCipherTransmitter.h"
 #include "../OTPStreamCipherReceiver.h"
+#include "../StandardRandomStrategy.h"
 
 int OTPStreamCipherReceiverTest::testParseMessage(){
     int result = 1;
@@ -111,7 +112,7 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
 
     // RESET 
     // Make sure it fails after 101 failed messages
-    
+
     MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint16_t, 2>xmitter2(iv);
     MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint16_t, 2>receiver2(iv);
 
@@ -138,13 +139,12 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
     for(int i = 0; i < 32790; i++){
         xmitter3.getMessageToTransmit(message);
     }
-    
     for(uint16_t i = 0; i < 8; i++){
         uint32_t xmittingMessage = (uint32_t)xmitter3.getMessageToTransmit(message);
         uint16_t decodedMessage = receiver3.parseMessage(xmittingMessage);
         if(decodedMessage == message || decodedMessage == 0){
             result = 0; 
-            std::cout << "FAILED incorrect decode check: " << " Expeccted decoded message " << decodedMessage << " to not equal message " << message << '\n'; 
+            std::cout << "FAILED incorrect decode check: " << " Expected decoded message " << decodedMessage << " to not equal message " << message << '\n'; 
             break;
         }
     }

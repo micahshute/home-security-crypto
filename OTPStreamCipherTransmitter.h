@@ -1,7 +1,7 @@
 #ifndef OTP_STREAM_CIPHER_TRANSMITTER
 #define OTP_STREAM_CIPHER_TRANSMITTER
 
-#include <random>
+#include "StandardRandomStrategy.h"
 #include <cmath>
 #include <cstdint>
 #include "MSCrypto.h"
@@ -10,13 +10,12 @@ namespace MSCrypto{
     template <typename MType, size_t MSize, typename CType, size_t CSize>
     class OTPStreamCipherTransmitter{
         private: 
-            std::default_random_engine engine;
-            std::uniform_int_distribution<uint8_t> dist;
-            MType iv;
+            StandardRandomStrategy<uint8_t> randomStrategy;
+            uint32_t seed;
             uint8_t getRandomByte();
         public: 
             CType streamByteLocation;
-            OTPStreamCipherTransmitter(MType iv);
+            OTPStreamCipherTransmitter(uint32_t seed);
             uint8_t otpByte(uint8_t byte);
             MType otp(MType message);
             void getBytes(MType num, uint8_t byteCount, uint8_t* bytes);
@@ -30,17 +29,16 @@ namespace MSCrypto{
 
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
-MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::OTPStreamCipherTransmitter(MType iv){
-    this->iv = iv;
+MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::OTPStreamCipherTransmitter(uint32_t seed){
+    this->seed = seed;
     this->streamByteLocation = 0;
-    this->engine.seed(iv);
-    this->dist = std::uniform_int_distribution<uint8_t>(0, 255);
+    this->randomStrategy = StandardRandomStrategy<uint8_t>(seed, 0, 255);
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
 uint8_t MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getRandomByte(){
-    streamByteLocation++;
-    return dist(engine);
+    this->streamByteLocation++;
+    return this->randomStrategy.getRandomNumber();
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
@@ -50,7 +48,8 @@ void MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getBytes(
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
 uint8_t MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::otpByte(uint8_t byte){
-    return byte ^ getRandomByte();
+    uint8_t rbyte = getRandomByte();
+    return byte ^ rbyte;
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
