@@ -4,9 +4,9 @@
 #include <random>
 #include <cmath>
 #include <cstdint>
-#include "Crypto.h"
+#include "MSCrypto.h"
 
-namespace Crypto{
+namespace MSCrypto{
 
     template <typename MType, size_t MSize, typename CType, size_t CSize>
     class OTPStreamCipherReceiver{
@@ -25,7 +25,7 @@ namespace Crypto{
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
-Crypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::OTPStreamCipherReceiver(MType iv){
+MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::OTPStreamCipherReceiver(MType iv){
     this->iv = iv;
     this->streamByteLocation = 0;
     this->engine.seed(iv);
@@ -34,18 +34,18 @@ Crypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::OTPStreamCipherRece
 
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
-uint8_t Crypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::getRandomByte(){
+uint8_t MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::getRandomByte(){
     streamByteLocation++;
     return dist(engine);
 }
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
-MType Crypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::parseMessage(uint64_t fullMessage){
+MType MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::parseMessage(uint64_t fullMessage){
     CType maxMessageCountNum = (CType)(std::pow(2, 8*CSize) - 1);
     CType messageCountBytes = fullMessage & maxMessageCountNum;
     MType encodedMessage = fullMessage >> (8 * CSize);
     CType shortStreamByteLocation = (CType)(streamByteLocation % (uint64_t)std::pow(2, CSize * 8 ));
-    CType missedMessages = Crypto::rolloverDifference<CType>(messageCountBytes, shortStreamByteLocation);
+    CType missedMessages = MSCrypto::rolloverDifference<CType>(messageCountBytes, shortStreamByteLocation);
     uint8_t maxMissedMessages = 100 * MSize;
 
     if(missedMessages > maxMissedMessages || missedMessages % MSize != 0){
@@ -70,7 +70,7 @@ MType Crypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::parseMessage(
 }
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
-void Crypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::resetStreamToLastValue(){
+void MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::resetStreamToLastValue(){
     this->engine = std::default_random_engine();
     this->engine.seed(this->iv);
     this->dist = std::uniform_int_distribution<uint8_t>(0,255);

@@ -1,10 +1,10 @@
-#ifndef CRYPTO
-#define CRYPTO
+#ifndef MS_CRYPTO
+#define MS_CRYPTO
 
 #include <cstdint>
 #include <cmath>
 
-namespace Crypto{
+namespace MSCrypto{
     uint64_t bytes2num(uint8_t byteCount, uint8_t *bytes);
     void num2bytes(uint64_t num, uint8_t byteCount, uint8_t *bytes);
     template <typename T> 
@@ -12,7 +12,7 @@ namespace Crypto{
 };
 
 template <typename T>
-T Crypto::rolloverDifference(T largerNum, T smallerNum){
+T MSCrypto::rolloverDifference(T largerNum, T smallerNum){
     if(largerNum >= smallerNum){
         return largerNum - smallerNum;
     }else{

@@ -9,8 +9,8 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
     uint16_t iv = 23513;
     uint16_t message = 8072;
 
-    Crypto::OTPStreamCipherTransmitter<uint16_t, 2, uint16_t, 2>xmitter(iv);
-    Crypto::OTPStreamCipherReceiver<uint16_t, 2, uint16_t, 2>receiver(iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint16_t, 2>xmitter(iv);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint16_t, 2>receiver(iv);
  
     // standard operation
 
@@ -112,8 +112,8 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
     // RESET 
     // Make sure it fails after 101 failed messages
     
-    Crypto::OTPStreamCipherTransmitter<uint16_t, 2, uint16_t, 2>xmitter2(iv);
-    Crypto::OTPStreamCipherReceiver<uint16_t, 2, uint16_t, 2>receiver2(iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint16_t, 2>xmitter2(iv);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint16_t, 2>receiver2(iv);
 
     for(int i = 0; i < 101; i++){
         xmitter2.getMessageToTransmit(message);
@@ -132,8 +132,8 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
     // RESET
     // Make sure after max+(>= 1 or < 100) messages the message is wrong
 
-    Crypto::OTPStreamCipherTransmitter<uint16_t, 2, uint16_t, 2>xmitter3(iv);
-    Crypto::OTPStreamCipherReceiver<uint16_t, 2, uint16_t, 2>receiver3(iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint16_t, 2>xmitter3(iv);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint16_t, 2>receiver3(iv);
 
     for(int i = 0; i < 32790; i++){
         xmitter3.getMessageToTransmit(message);
@@ -163,8 +163,8 @@ int OTPStreamCipherReceiverTest::testResetStreamToLastValue(){
     uint16_t iv = 23513;
     uint16_t message = 8072;
 
-    Crypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter(iv);
-    Crypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver(iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter(iv);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver(iv);
 
     // Run 100 times
     // send a faulty message
@@ -217,8 +217,8 @@ int OTPStreamCipherReceiverTest::testResetStreamToLastValue(){
 
     // Now, let's do it but reset the receiver when we realized the message was spoofed:
 
-    Crypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter2(iv);
-    Crypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver2(iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter2(iv);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver2(iv);
 
     // Run 100 times
     // send a faulty message

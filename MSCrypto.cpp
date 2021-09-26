@@ -1,6 +1,6 @@
-#include "Crypto.h"
+#include "MSCrypto.h"
 
-namespace Crypto{
+namespace MSCrypto{
     uint64_t bytes2num(uint8_t byteCount, uint8_t *bytes){
         uint64_t result = 0;
         for(uint8_t i = 0; i < byteCount; i++){

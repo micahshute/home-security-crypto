@@ -4,9 +4,9 @@
 #include <random>
 #include <cmath>
 #include <cstdint>
-#include "Crypto.h"
+#include "MSCrypto.h"
 
-namespace Crypto{
+namespace MSCrypto{
     template <typename MType, size_t MSize, typename CType, size_t CSize>
     class OTPStreamCipherTransmitter{
         private: 
@@ -30,7 +30,7 @@ namespace Crypto{
 
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
-Crypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::OTPStreamCipherTransmitter(MType iv){
+MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::OTPStreamCipherTransmitter(MType iv){
     this->iv = iv;
     this->streamByteLocation = 0;
     this->engine.seed(iv);
@@ -38,28 +38,28 @@ Crypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::OTPStreamCipherT
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
-uint8_t Crypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getRandomByte(){
+uint8_t MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getRandomByte(){
     streamByteLocation++;
     return dist(engine);
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
-void Crypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getBytes(MType num, uint8_t byteCount, uint8_t* bytes){
-    Crypto::num2bytes((uint64_t)num, byteCount, bytes);
+void MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getBytes(MType num, uint8_t byteCount, uint8_t* bytes){
+    MSCrypto::num2bytes((uint64_t)num, byteCount, bytes);
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
-uint8_t Crypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::otpByte(uint8_t byte){
+uint8_t MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::otpByte(uint8_t byte){
     return byte ^ getRandomByte();
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
-MType Crypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getNumberFromBytes(uint8_t* bytes){
-    return (MType)Crypto::bytes2num(MSize, bytes);
+MType MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getNumberFromBytes(uint8_t* bytes){
+    return (MType)MSCrypto::bytes2num(MSize, bytes);
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
-MType Crypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::otpMessage(MType message){
+MType MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::otpMessage(MType message){
     uint8_t bytes[MSize];
     getBytes(message, MSize, bytes);
     for(int i = 0; i < MSize; i++){
@@ -69,18 +69,18 @@ MType Crypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::otpMessage
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
-CType Crypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getMessagesSentCount(){
+CType MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getMessagesSentCount(){
     return streamByteLocation / MSize;
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
-uint64_t Crypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getMessageToTransmit(MType message){
+uint64_t MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getMessageToTransmit(MType message){
     uint8_t bytes[MSize];
     CType streamByteStart = this->streamByteLocation;
     MType encryptedMessage = otpMessage(message);
     getBytes(encryptedMessage, MSize, bytes);
     uint8_t streamByteStartBytes[CSize];
-    Crypto::num2bytes((uint64_t)streamByteStart, CSize, streamByteStartBytes);
+    MSCrypto::num2bytes((uint64_t)streamByteStart, CSize, streamByteStartBytes);
     uint8_t fullMessage[MSize + CSize];
     for(int i = 0; i < MSize; i++){
         fullMessage[i] = bytes[i];
@@ -88,7 +88,7 @@ uint64_t Crypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getMess
     for(int i = 0; i < CSize; i++){
         fullMessage[i + MSize] = streamByteStartBytes[i];
     }
-    return (uint64_t)Crypto::bytes2num((MSize + CSize), fullMessage);
+    return (uint64_t)MSCrypto::bytes2num((MSize + CSize), fullMessage);
 };
 
 #endif

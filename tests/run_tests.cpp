@@ -1,6 +1,8 @@
 #include <iostream>
 #include "OTPStreamCipherTransmitterTest.h"
 #include "OTPStreamCipherReceiverTest.h"
+#include "CircularStackTest.h"
+#include "MSPrngTest.h"
 
 int main(){
     std::cout << "\n\n\n";
@@ -11,12 +13,22 @@ int main(){
     totalTests++;
     OTPStreamCipherReceiverTest otpStreamCipherReceiverTest;
     totalTests++;
+    CircularStackTest circularStackTest;
+    totalTests++;
+    MSPrngTest msPrngTest;
+    totalTests++;
     if(!otpStreamCipherTest.run()){
         failedTests++;
     }
     if(!otpStreamCipherReceiverTest.run()){
         failedTests++;
     }
+    if(!circularStackTest.run()){
+        failedTests++;
+    }
+    if(!msPrngTest.run()){{
+        failedTests++;
+    }}
 
     if(failedTests == 0){
         std::cout << "All tests pass: " << totalTests << "/" << totalTests;

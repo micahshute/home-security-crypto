@@ -9,7 +9,7 @@
 int OTPStreamCipherTransmitterTest::testConstructor(){
     int result = 1;
     unsigned long iv = 123456789;
-    Crypto::OTPStreamCipherTransmitter<uint32_t, 4, uint32_t, 4> streamCipher(iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint32_t, 4, uint32_t, 4> streamCipher(iv);
     if(streamCipher.streamByteLocation != 0){
         std::cout << "\tFAILED: Expected streamByteLocation to be 0 but it was " << streamCipher.streamByteLocation << '\n';
         result = 0;
@@ -29,7 +29,7 @@ int OTPStreamCipherTransmitterTest::testConstructor(){
 int OTPStreamCipherTransmitterTest::testOtpByte(){
     int result = 1;
     unsigned long iv = 123456789;
-    Crypto::OTPStreamCipherTransmitter<uint32_t, 4, uint32_t, 4> streamCipher(iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint32_t, 4, uint32_t, 4> streamCipher(iv);
     int encryptedMessages[256];
     for(int i = 0; i < 256; i++){
         int encryptedMsg = streamCipher.otpByte(i);
@@ -57,7 +57,7 @@ int OTPStreamCipherTransmitterTest::testOtpByte(){
 int OTPStreamCipherTransmitterTest::testGetNumberFromBytes(){
     int result = 1;
     unsigned long iv = 1;
-    Crypto::OTPStreamCipherTransmitter<uint32_t, 4, uint32_t, 4>streamCipher(iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint32_t, 4, uint32_t, 4>streamCipher(iv);
     uint8_t testNum1[4] = {0, 0, 0, 143};
     uint8_t testNum2[4] = {0, 0, 255, 0};
     uint8_t testNum3[4] = {1, 1, 1, 1};
@@ -104,7 +104,7 @@ int OTPStreamCipherTransmitterTest::testGetMessageToTransmit(){
     unsigned long iv = 1214161820;
     uint8_t byteLen = 4;
 
-    Crypto::OTPStreamCipherTransmitter<uint32_t, 4, uint32_t, 4> streamCipher(iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint32_t, 4, uint32_t, 4> streamCipher(iv);
     uint32_t message1 = 1903260017;
     uint32_t message2 = 779283;
     uint64_t encodedMessage1 = streamCipher.getMessageToTransmit(message1);
@@ -180,7 +180,7 @@ int OTPStreamCipherTransmitterTest::testOtpMessage(){
     uint32_t iv = 2468101214;
     int byteLen = 4;
 
-    Crypto::OTPStreamCipherTransmitter<uint32_t, 4, uint16_t, 2> streamCipher(iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint32_t, 4, uint16_t, 2> streamCipher(iv);
     uint32_t message1 = 1903260017;
     uint32_t message2 = 779283;
     uint32_t encodedMessage1 = streamCipher.otpMessage(message1);
@@ -227,7 +227,7 @@ int OTPStreamCipherTransmitterTest::testStreamCountRollover(){
 
     uint16_t iv = 8192;
     int byteLen = 2;
-    Crypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1> streamCipher(iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1> streamCipher(iv);
 
     uint16_t message = 24239;
     uint8_t maxCount = 255;
