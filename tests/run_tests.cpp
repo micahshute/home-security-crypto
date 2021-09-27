@@ -3,6 +3,8 @@
 #include "OTPStreamCipherReceiverTest.h"
 #include "CircularStackTest.h"
 #include "MSPrngTest.h"
+#include "ShiftRegisterTest.h"
+#include "TriviumTest.h"
 
 int main(){
     std::cout << "\n\n\n";
@@ -17,6 +19,10 @@ int main(){
     totalTests++;
     MSPrngTest msPrngTest;
     totalTests++;
+    ShiftRegisterTest shiftRegisterTest;
+    totalTests++;
+    TriviumTest triviumTest;
+    totalTests++;
     if(!otpStreamCipherTest.run()){
         failedTests++;
     }
@@ -26,9 +32,15 @@ int main(){
     if(!circularStackTest.run()){
         failedTests++;
     }
-    if(!msPrngTest.run()){{
+    if(!msPrngTest.run()){
         failedTests++;
-    }}
+    }
+    if(!shiftRegisterTest.run()){
+        failedTests++;
+    }
+    if(!triviumTest.run()){
+        failedTests++;
+    }
 
     if(failedTests == 0){
         std::cout << "All tests pass: " << totalTests << "/" << totalTests;

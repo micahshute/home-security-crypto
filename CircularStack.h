@@ -16,7 +16,8 @@ namespace MSCrypto{
             void push(T item);
             T pop();
             T peek();
-            T peek(unsigned long prev_index);
+            T peek_back(unsigned long prev_index);
+            T peek(unsigned long i);
     };
 };
 
@@ -56,9 +57,15 @@ T MSCrypto::CircularStack<T,S>::peek(){
 };
 
 template <typename T, std::size_t S>
-T MSCrypto::CircularStack<T,S>::peek(unsigned long prev_index){
+T MSCrypto::CircularStack<T,S>::peek_back(unsigned long prev_index){
     unsigned long i = (this->index - prev_index + S) % S;
     return data[i];
 };
+
+template <typename T, std::size_t S>
+T MSCrypto::CircularStack<T,S>::peek(unsigned long i){
+    unsigned long index = (this->index + i) % S;
+    return data[index];
+}
 
 #endif
