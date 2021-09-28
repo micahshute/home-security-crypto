@@ -7,8 +7,8 @@ class TriviumTest{
         int testGetBit();
         int testGetByte();
         int testPeriodicity();
-        int testGetState();
-        int testRevert();
+        int testRepeatability();
+        int testGetStateAndRevert();
         int testReset();
         int run();
 };

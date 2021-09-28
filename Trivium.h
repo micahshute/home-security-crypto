@@ -36,7 +36,7 @@ namespace MSCrypto{
             uint8_t getBit();
             uint8_t getByte();
             uint8_t calculate();
-            void getState(RegisterState &state);
+            RegisterState getState();
             void reset();
             void revert(RegisterState &state);
 

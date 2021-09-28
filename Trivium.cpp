@@ -137,7 +137,8 @@ void MSCrypto::Trivium::initialize(){
     }
 };
 
-void MSCrypto::Trivium::getState(RegisterState &state){
+MSCrypto::Trivium::RegisterState MSCrypto::Trivium::getState(){
+    RegisterState state;
     for(uint8_t i = 0; i < 93; i++){
         state.register1[i] = this->register1.peek(i);
     }
@@ -147,17 +148,18 @@ void MSCrypto::Trivium::getState(RegisterState &state){
     for(uint8_t i = 0; i < 111; i++){
         state.register3[i] = this->register3.peek(i);
     }
+    return state;
 };
 
 void MSCrypto::Trivium::reset(){
-    for(int i = 92; i > 80; i--){
+    for(int i = 92; i >= 80; i--){
         register1.shift(0);
     }
     for(int i = 0; i < 80; i++){
         register1.shift(this->secretKey[80 - 1 - i]);
     }
 
-    for(int i = 84; i > 80; i--){
+    for(int i = 84; i >= 80; i--){
         register2.shift(0);
     }
     for(int i = 0; i < 80; i++){
@@ -174,6 +176,7 @@ void MSCrypto::Trivium::reset(){
     initialize();
 };
 
+#include <iostream>
 void MSCrypto::Trivium::revert(MSCrypto::Trivium::RegisterState &state){
    for(uint8_t i = 0; i < 93; i++){
        this->register1.shift(state.register1[92 - i]);
@@ -181,7 +184,8 @@ void MSCrypto::Trivium::revert(MSCrypto::Trivium::RegisterState &state){
    for(uint8_t i = 0; i < 84; i++){
        this->register2.shift(state.register2[83 - i]);
    }
-   for(uint8_t i = 1; i < 111; i++){
+   for(uint8_t i = 0; i < 111; i++){
        this->register3.shift(state.register3[110 - i]);
    }
+
 };
