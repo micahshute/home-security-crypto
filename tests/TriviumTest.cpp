@@ -181,6 +181,29 @@ int TriviumTest::testGetStateAndRevert(){
 int TriviumTest::testReset(){
     int result = 1;
 
+    uint8_t firstNums[101];
+    char key[81] = "11010010100100111010000010110001110101111110100001100111010001011000110110111001";
+    char iv[81] = "10011011110100010010111010100101000111100011100101001110010000101011011100101101";
+    MSCrypto::Trivium trivium(key, iv);
+    for(int i = 0; i < 101; i++){
+        firstNums[i] = trivium.getByte();
+    }
+
+    trivium.reset();
+    for(int i = 0; i < 101; i++){
+        uint8_t newByte = trivium.getByte();
+        if(newByte != firstNums[i]){
+            result = 0;
+            std::cout << "\tFAILED: Expected reset to work, but got original ; newnum" << (int)firstNums[i] << " ; " << (int)newByte << '\n';
+            break;
+        }
+    }
+
+    if(result == 0){
+        std::cout << "TriviumTest::reset FAILED\n";
+    }else{
+        std::cout << "TriviumTest::reset PASSED\n";
+    }
     return result;
 };
 
