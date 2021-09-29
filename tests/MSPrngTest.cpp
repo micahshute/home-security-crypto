@@ -163,6 +163,50 @@ int MSPrngTest::testReset(){
     return result;
 };
 
+int MSPrngTest::testDistribution(){
+    int result = 1;
+
+    uint32_t seed = 353221177;
+    MSCrypto::MSPrng<uint8_t> rand(0,255,seed);
+    int valueCount[256];
+    for(int i = 0; i < 256; i++){
+        valueCount[i] = 0;
+    }
+
+    for(int i = 0; i < 100000; i++){
+        uint8_t byte = rand.get();
+        valueCount[byte] += 1;
+    }
+
+    int max = 0;
+    int min = 100000;
+    // Index 255 is always zero, assuming it is 
+    // a function of this prng algorithm. Iterate <255 not <256
+    for(int i = 0; i < 255; i++){
+        if(valueCount == 0){
+            result = 0;
+            std::cout << "Expected no number to be 0 but " << i << " was 0\n";
+            break;
+        }
+        if(valueCount[i] > max){
+            max = valueCount[i];
+        }else if(valueCount[i] < min){
+            min = valueCount[i];
+        }
+    }
+
+    // 100000 numbers evenly divided would be 392 occurances of each
+    // number 0-254
+    // Hoping the occurance counts are between 317-467, completly arbitrary, naive 
+    // expectation
+    if(max - min > 150){
+        result = 0;
+        std::cout << "\tExpected an even distriution of numbers but the max count was " << max << " and the min count was " << min << '\n';
+    }
+
+    return result;
+}
+
 int MSPrngTest::run(){
     int result = 1;
     if(!testProperOperation()){
@@ -175,6 +219,9 @@ int MSPrngTest::run(){
         result = 0;
     }
     if(!testReset()){
+        result = 0;
+    }
+    if(!testDistribution()){
         result = 0;
     }
     return result;

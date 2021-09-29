@@ -10,6 +10,7 @@ class MSPrngTest{
         int testRevert();
         int testReset();
         int testNonzeroMin();
+        int testDistribution();
 };
 
 #endif 
