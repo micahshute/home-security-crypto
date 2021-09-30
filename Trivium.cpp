@@ -176,7 +176,6 @@ void MSCrypto::Trivium::reset(){
     initialize();
 };
 
-#include <iostream>
 void MSCrypto::Trivium::revert(MSCrypto::Trivium::RegisterState &state){
    for(uint8_t i = 0; i < 93; i++){
        this->register1.shift(state.register1[92 - i]);
