@@ -21,10 +21,11 @@ namespace MSCrypto{
             MSPrng();
             MSPrng(T min, T max, uint32_t seed);
             uint32_t get();
-            void revert(uint8_t count);
+            bool revert(uint8_t count);
             void reset();
             uint8_t maxResetSize;
             uint8_t getPossibleRevertCount();
+            void cacheState();
     };
 };
 
@@ -56,12 +57,15 @@ uint32_t MSCrypto::MSPrng<T>::get(){
 
 
 template <typename T>
-void MSCrypto::MSPrng<T>::revert(uint8_t count){
+bool MSCrypto::MSPrng<T>::revert(uint8_t count){
     if( count > 0 && count < this->maxResetSize && this->getPossibleRevertCount() >= count){
         for(int i = 0; i < count; i++){
             this->previousNumbers.pop();
         }
         this->calculator.revert(this->previousNumbers.peek());
+        return true;
+    }else{
+        return false;
     }
 };
 
@@ -73,5 +77,8 @@ void MSCrypto::MSPrng<T>::reset(){
     this->previousNumbers.push(this->seed);
     this->calculator.reset();
 };
+
+template <typename T>
+void MSCrypto::MSPrng<T>::cacheState(){};
 
 #endif

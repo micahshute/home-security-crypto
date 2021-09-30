@@ -6,6 +6,25 @@
 
 namespace MSCrypto{
     class Trivium{
+        public:
+            // NOTE: key and iv should both be of length 80 
+            // for a bit array but 81 for a char array
+            Trivium(uint8_t *key, uint8_t *iv);
+            Trivium(char *key, char *iv);
+            struct RegisterState{
+                uint8_t register1[93];
+                uint8_t register2[84];
+                uint8_t register3[111];
+            };
+            uint8_t getBit();
+            uint8_t get();
+            uint8_t getByte();
+            uint8_t calculate();
+            void cacheState();
+            RegisterState getState();
+            void reset();
+            void revert(RegisterState &state);
+            bool revert();
         private: 
             ShiftRegister<uint8_t, 93> register1;
             ShiftRegister<uint8_t, 84> register2;
@@ -22,23 +41,9 @@ namespace MSCrypto{
             RegisterTaps registerTaps1;
             RegisterTaps registerTaps2;
             RegisterTaps registerTaps3;
+            RegisterState cachedState;
+            bool hasCachedState;
             void initialize();
-        public:
-            // NOTE: key and iv should both be of length 80 
-            // for a bit array but 81 for a char array
-            Trivium(uint8_t *key, uint8_t *iv);
-            Trivium(char *key, char *iv);
-            struct RegisterState{
-                uint8_t register1[93];
-                uint8_t register2[84];
-                uint8_t register3[111];
-            };
-            uint8_t getBit();
-            uint8_t getByte();
-            uint8_t calculate();
-            RegisterState getState();
-            void reset();
-            void revert(RegisterState &state);
 
     };
 };

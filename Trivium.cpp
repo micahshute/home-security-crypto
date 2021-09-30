@@ -68,7 +68,11 @@ MSCrypto::Trivium::Trivium(char *key, char *iv){
     }
     this->setupTaps();
     this->initialize();
+};
 
+void MSCrypto::Trivium::cacheState(){
+    this->cachedState = this->getState();
+    this->hasCachedState = true;
 };
 
 void MSCrypto::Trivium::setupTaps(){
@@ -124,6 +128,10 @@ uint8_t MSCrypto::Trivium::getByte(){
         byte += getBit() * powers[i];
     }
     return byte;
+};
+
+uint8_t MSCrypto::Trivium::get(){
+    return this->getByte();
 };
 
 uint8_t MSCrypto::Trivium::calculate(){
@@ -187,4 +195,14 @@ void MSCrypto::Trivium::revert(MSCrypto::Trivium::RegisterState &state){
        this->register3.shift(state.register3[110 - i]);
    }
 
+};
+
+bool MSCrypto::Trivium::revert(){
+    if(this->hasCachedState){
+        this->revert(this->cachedState);
+        this->hasCachedState = false;
+        return true;
+    }else{
+        return false;
+    }
 };

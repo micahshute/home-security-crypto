@@ -4,7 +4,8 @@
 #include <cmath>
 #include <cstdint>
 #include "MSCrypto.h"
-#include "ArduinoRandomStrategy.h"
+#include "MSPrng.h"
+#include "Trivium.h"
 
 namespace MSCrypto{
 
@@ -12,12 +13,15 @@ namespace MSCrypto{
     class OTPStreamCipherReceiver{
         private:
             MType seed;
-            ArduinoRandomStrategy<uint8_t> randomStrategy;
+            MSPrng<uint8_t> prng;
+            // Trivium csprng;
             uint64_t streamByteLocation;
             uint64_t lastStreamByteLocation;
             uint8_t getRandomByte();
+            bool isSecure;
         public:
             OTPStreamCipherReceiver(MType seed);
+            OTPStreamCipherReceiver(uint8_t *key, uint8_t *iv);
             MType parseMessage(uint64_t fullMessage);
             void resetStreamToLastValue();
     };
@@ -26,16 +30,25 @@ namespace MSCrypto{
 template <typename MType, size_t MSize, typename CType, size_t CSize>
 MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::OTPStreamCipherReceiver(MType seed){
     this->seed = seed;
-    this->randomStrategy = ArduinoRandomStrategy<uint8_t>(seed, 0, 255);
+    this->isSecure = false;
+    this->prng = MSPrng<uint8_t>(0, 255, seed);
     this->lastStreamByteLocation = 0; 
     this->streamByteLocation = 0;
 };
+
+// template <typename MType, size_t Msize, typename CType, size_t CSize>
+// MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::OTPStreamCipherReceiver(uint8_t *key, uint8_t *iv){
+//     this->isSecure = true;
+//     this->csprng = MSCrypto::Trivium(key, iv);
+//     this->lastStreamByteLocation = 0;
+//     this->streamByteLocation = 0;
+// };
 
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
 uint8_t MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::getRandomByte(){
     this->streamByteLocation++;
-    return this->randomStrategy.getRandomNumber();
+    return this->prng.get();
 }
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
@@ -71,11 +84,11 @@ MType MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::parseMessag
 template <typename MType, size_t MSize, typename CType, size_t CSize>
 void MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::resetStreamToLastValue(){
     uint16_t revertCount = this->streamByteLocation - this->lastStreamByteLocation;
-    if(!this->randomStrategy.rollbackStreamLocation(revertCount)){
+    if(!this->prng.revert(revertCount)){
         // NOTE: If lastStreamByteLocation is very high, this could 
         // stall out the arduino. Very dangerous code, may just want 
         // to reset both Xmitter & Receiver.
-        this->randomStrategy.reset();
+        this->prng.reset();
         this->streamByteLocation = 0;
         for(uint64_t i = 0; i < this->lastStreamByteLocation; i++){
             this->getRandomByte();

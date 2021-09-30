@@ -333,6 +333,24 @@ int TriviumTest::testGetStateAndRevert(){
         }
     }
 
+    trivium.cacheState();
+
+    uint8_t cachedVals[100];
+    for(int i = 0; i < 100; i++){
+        cachedVals[i] = trivium.get();
+    }
+
+    trivium.revert();
+
+    for(int i = 0; i < 100; i++){
+        uint8_t val = trivium.get();
+        if(val != cachedVals[i]){
+            result = 0;
+            std::cout << "FAILED: (revert 3) " << i << " Expected reerted trivium to be " << (int)cachedVals[i] << " but it was " << (int)val << '\n'; 
+            break;
+        }
+    }
+
     if(result == 0){
         std::cout << "TriviumTest::testGetStateAndRevert: FAILED\n";
     }else{

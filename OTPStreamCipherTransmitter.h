@@ -1,7 +1,7 @@
 #ifndef OTP_STREAM_CIPHER_TRANSMITTER
 #define OTP_STREAM_CIPHER_TRANSMITTER
 
-#include "ArduinoRandomStrategy.h"
+#include "MSPrng.h"
 #include <cmath>
 #include <cstdint>
 #include "MSCrypto.h"
@@ -10,7 +10,7 @@ namespace MSCrypto{
     template <typename MType, size_t MSize, typename CType, size_t CSize>
     class OTPStreamCipherTransmitter{
         private: 
-            ArduinoRandomStrategy<uint8_t> randomStrategy;
+            MSPrng<uint8_t> prng;
             uint32_t seed;
             uint8_t getRandomByte();
         public: 
@@ -32,13 +32,13 @@ template <typename MType, size_t MSize, typename CType, size_t CSize>
 MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::OTPStreamCipherTransmitter(uint32_t seed){
     this->seed = seed;
     this->streamByteLocation = 0;
-    this->randomStrategy = ArduinoRandomStrategy<uint8_t>(seed, 0, 255);
+    this->prng = MSPrng<uint8_t>(0, 255, seed);
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
 uint8_t MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getRandomByte(){
     this->streamByteLocation++;
-    return this->randomStrategy.getRandomNumber();
+    return this->prng.get();
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
