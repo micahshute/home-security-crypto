@@ -1,7 +1,10 @@
 #ifndef MS_CRYPTO_TRIVIUM
 #define MS_CRYPTO_TRIVIUM
 
-#include <cstdint>
+//include "Arduino.h"
+#ifndef Arduino_h
+    #include <cstdint>
+#endif
 #include "ShiftRegister.h"
 
 namespace MSCrypto{

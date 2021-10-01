@@ -1,7 +1,10 @@
 #ifndef MS_PRNG
 #define MS_PRNG
 
-#include <cstdint>
+//include "Arduino.h"
+#ifndef Arduino_h
+    #include <cstdint>
+#endif
 #include "CircularStack.h"
 #include "LinearCongruenceStrategy.h"
 #include "LehmerStrategy.h"

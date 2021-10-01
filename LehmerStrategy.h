@@ -1,7 +1,10 @@
 #ifndef LEHMER_STRATEGY
 #define LEHMER_STRATEGY
 
-#include <cstdint>
+// include "Arduino.h"
+#ifndef Arduino_h
+    #include <cstdint>
+#endif
 
 //NOTE: DO not use this with T = uint64_t 
 

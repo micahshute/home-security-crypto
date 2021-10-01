@@ -1,8 +1,12 @@
 #ifndef MS_CRYPTO
 #define MS_CRYPTO
 
-#include <cstdint>
-#include <cmath>
+// include "Arduino.h"
+#ifndef Arduino_h
+    #include <cstdint>
+    #include <cmath>
+    using namespace std;
+#endif
 
 namespace MSCrypto{
     uint64_t bytes2num(uint8_t byteCount, uint8_t *bytes);
@@ -17,7 +21,7 @@ T MSCrypto::rolloverDifference(T largerNum, T smallerNum){
         return largerNum - smallerNum;
     }else{
         int byteCount = sizeof(largerNum);
-        T maxSize = (T)(std::pow(2, 8 * byteCount) - 1);
+        T maxSize = (T)(pow(2, 8 * byteCount) - 1);
         T difference = maxSize - smallerNum + 1 + largerNum;
         return difference;
     }

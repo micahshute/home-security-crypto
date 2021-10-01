@@ -1,9 +1,14 @@
 #ifndef OTP_STREAM_CIPHER_TRANSMITTER
 #define OTP_STREAM_CIPHER_TRANSMITTER
 
+
+//include "Arduino.h"
+#ifndef Arduino_h
+    #include <cmath>
+    #include <cstdint>
+#endif
+
 #include "MSPrng.h"
-#include <cmath>
-#include <cstdint>
 #include "MSCrypto.h"
 
 namespace MSCrypto{
@@ -15,6 +20,7 @@ namespace MSCrypto{
             uint8_t getRandomByte();
         public: 
             CType streamByteLocation;
+            OTPStreamCipherTransmitter();
             OTPStreamCipherTransmitter(uint32_t seed);
             uint8_t otpByte(uint8_t byte);
             MType otp(MType message);
@@ -27,6 +33,9 @@ namespace MSCrypto{
     };
 };
 
+template <typename MType, size_t MSize, typename CType, size_t CSize>
+MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::OTPStreamCipherTransmitter(){
+};
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
 MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::OTPStreamCipherTransmitter(uint32_t seed){

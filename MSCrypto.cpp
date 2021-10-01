@@ -1,10 +1,14 @@
 #include "MSCrypto.h"
 
+#ifndef Arduino_h
+    using namespace std;
+#endif
+
 namespace MSCrypto{
     uint64_t bytes2num(uint8_t byteCount, uint8_t *bytes){
         uint64_t result = 0;
         for(uint8_t i = 0; i < byteCount; i++){
-            result += bytes[byteCount - 1 - i] * (uint64_t)std::pow(256, i);
+            result += bytes[byteCount - 1 - i] * (uint64_t)pow(256, i);
         }
         return result;
     };

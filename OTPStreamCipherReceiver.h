@@ -1,8 +1,12 @@
 #ifndef OTP_STREAM_CIPHER_RECEIVER
 #define OTP_STREAM_CIPHER_RECEIVER
 
-#include <cmath>
-#include <cstdint>
+//include "Arduino.h"
+#ifndef Arduino_h
+    #include <cstdint>
+    #include <cmath>
+    using namespace std;
+#endif
 #include "MSCrypto.h"
 #include "MSPrng.h"
 #include "Trivium.h"
@@ -53,10 +57,10 @@ uint8_t MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::getRandom
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
 MType MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::parseMessage(uint64_t fullMessage){
-    CType maxMessageCountNum = (CType)(std::pow(2, 8*CSize) - 1);
+    CType maxMessageCountNum = (CType)(pow(2, 8*CSize) - 1);
     CType messageCountBytes = fullMessage & maxMessageCountNum;
     MType encodedMessage = fullMessage >> (8 * CSize);
-    CType shortStreamByteLocation = (CType)(streamByteLocation % (uint64_t)std::pow(2, CSize * 8 ));
+    CType shortStreamByteLocation = (CType)(streamByteLocation % (uint64_t)pow(2, CSize * 8 ));
     CType missedMessages = MSCrypto::rolloverDifference<CType>(messageCountBytes, shortStreamByteLocation);
     uint16_t maxMissedMessages = 100 * MSize;
 
@@ -73,7 +77,7 @@ MType MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::parseMessag
     MType otpKey = 0;
     for(uint8_t i = 0; i < MSize; i++){
         uint8_t byte = getRandomByte();
-        otpKey += byte * std::pow(256, i);
+        otpKey += byte * pow(256, i);
     }
 
     // Decode message

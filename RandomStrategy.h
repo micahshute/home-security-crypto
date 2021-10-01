@@ -1,7 +1,10 @@
 #ifndef RANDOM_STRATEGY
 #define RANDOM_STRATEGY
 
-#include <cstdint>
+//include "Arduino.h"
+#ifndef Arduino_h
+    #include <cstdint>
+#endif
 
 namespace MSCrypto{
     template <typename T>
