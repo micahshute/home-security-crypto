@@ -8,7 +8,11 @@ namespace MSCrypto{
     uint64_t bytes2num(uint8_t byteCount, uint8_t *bytes){
         uint64_t result = 0;
         for(uint8_t i = 0; i < byteCount; i++){
-            result += bytes[byteCount - 1 - i] * (uint64_t)pow(256, i);
+            uint64_t power = 1;
+            for(int j = 0; j < i; j++){
+                power *= 256;
+            }
+            result += bytes[byteCount - 1 - i] * power;
         }
         return result;
     };
