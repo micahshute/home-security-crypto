@@ -1,7 +1,7 @@
 #ifndef RANDOM_STRATEGY
 #define RANDOM_STRATEGY
 
-//include "Arduino.h"
+#include "Arduino.h"
 #ifndef Arduino_h
     #include <cstdint>
 #endif

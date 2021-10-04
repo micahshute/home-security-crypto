@@ -258,6 +258,19 @@ int OTPStreamCipherReceiverTest::testResetStreamToLastValue(){
         std::cout << "FAILED: Expected the receiver and transitter to be re-synced" << '\n';
     }
 
+    // TEST when number is added to ID
+    for(int i = 0; i < 500; i++){
+        uint32_t xmitCode = xmitter2.getMessageToTransmit(message);
+        std::cout << " xmitCode: " << xmitCode << ' ';
+        xmitCode = xmitCode << 8; // add ID
+        std::cout << " with id: " << xmitCode << " ";
+        std::cout << "stream location " << ((xmitCode >> 8) & 255) << '\n';
+        uint16_t decodedMessage =  receiver2.parseMessage(xmitCode >> 8);
+        if(decodedMessage != message){
+            std::cout << "FAILED: with added id, expected decoded message to be " << message << " but it was " << decodedMessage << '\n';
+        }
+    }
+
 
     if(result == 1){
         std::cout << "OTPStreamCipherReceiverTest#testParseMessage: PASSED\n\n";

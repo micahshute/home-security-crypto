@@ -1,7 +1,7 @@
 #ifndef MS_CRYPTO
 #define MS_CRYPTO
 
-// include "Arduino.h"
+#include "Arduino.h"
 #ifndef Arduino_h
     #include <cstdint>
     #include <cmath>

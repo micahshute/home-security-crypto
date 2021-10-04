@@ -1,7 +1,7 @@
 #ifndef OTP_STREAM_CIPHER_RECEIVER
 #define OTP_STREAM_CIPHER_RECEIVER
 
-//include "Arduino.h"
+#include "Arduino.h"
 #ifndef Arduino_h
     #include <cstdint>
     #include <cmath>
@@ -24,11 +24,17 @@ namespace MSCrypto{
             uint8_t getRandomByte();
             bool isSecure;
         public:
+            OTPStreamCipherReceiver();
             OTPStreamCipherReceiver(MType seed);
             OTPStreamCipherReceiver(uint8_t *key, uint8_t *iv);
             MType parseMessage(uint64_t fullMessage);
             void resetStreamToLastValue();
     };
+};
+
+template <typename MType, size_t MSize, typename CType, size_t CSize>
+MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::OTPStreamCipherReceiver(){
+
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>

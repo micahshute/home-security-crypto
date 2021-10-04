@@ -2,7 +2,7 @@
 #define OTP_STREAM_CIPHER_TRANSMITTER
 
 
-//include "Arduino.h"
+#include "Arduino.h"
 #ifndef Arduino_h
     #include <cmath>
     #include <cstdint>
@@ -94,9 +94,20 @@ uint64_t MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getMe
         fullMessage[i] = bytes[i];
     }
     for(int i = 0; i < CSize; i++){
+        // Serial.print("Stream byte");
+        // Serial.println((int)streamByteStartBytes[i]);
         fullMessage[i + MSize] = streamByteStartBytes[i];
     }
-    return (uint64_t)MSCrypto::bytes2num((MSize + CSize), fullMessage);
+    // for(int i = 0; i < (MSize + CSize); i++){
+    //     Serial.println((int)fullMessage[i]);
+    // }
+    // Serial.print("Stream byte location: ");
+    // Serial.println(this->streamByteLocation);
+    uint32_t test = (unsigned long long)MSCrypto::bytes2num((MSize + CSize), fullMessage);
+    // Serial.print("SBL from code: ");
+    // Serial.println((test & 255));
+    // Serial.println(test);
+    return (unsigned long long)MSCrypto::bytes2num((MSize + CSize), fullMessage);
 };
 
 #endif

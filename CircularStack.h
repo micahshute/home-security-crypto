@@ -1,7 +1,7 @@
 #ifndef CIRCULAR_STACK
 #define CIRCULAR_STACK
 
-// include "Arduino.h"
+#include "Arduino.h"
 #ifndef Arduino_h
     #include <cstdint>
     using namespace std;

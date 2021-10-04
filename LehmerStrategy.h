@@ -1,7 +1,7 @@
 #ifndef LEHMER_STRATEGY
 #define LEHMER_STRATEGY
 
-// include "Arduino.h"
+#include "Arduino.h"
 #ifndef Arduino_h
     #include <cstdint>
 #endif

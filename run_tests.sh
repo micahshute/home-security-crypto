@@ -1,3 +1,4 @@
+touch ./Arduino.h
 g++ -o test_suite ./tests/run_tests.cpp \
     ./tests/OTPStreamCipherTransmitterTest.cpp \
     ./tests/OTPStreamCipherReceiverTest.cpp \
@@ -10,3 +11,4 @@ g++ -o test_suite ./tests/run_tests.cpp \
     ./Trivium.cpp
 ./test_suite
 rm ./test_suite
+rm ./Arduino.h

@@ -1,7 +1,7 @@
 #ifndef MS_PRNG
 #define MS_PRNG
 
-//include "Arduino.h"
+#include "Arduino.h"
 #ifndef Arduino_h
     #include <cstdint>
 #endif

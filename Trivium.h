@@ -1,7 +1,7 @@
 #ifndef MS_CRYPTO_TRIVIUM
 #define MS_CRYPTO_TRIVIUM
 
-//include "Arduino.h"
+#include "Arduino.h"
 #ifndef Arduino_h
     #include <cstdint>
 #endif
