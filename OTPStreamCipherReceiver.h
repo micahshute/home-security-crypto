@@ -16,7 +16,7 @@ namespace MSCrypto{
     template <typename MType, size_t MSize, typename CType, size_t CSize>
     class OTPStreamCipherReceiver{
         private:
-            MType seed;
+            uint32_t seed;
             MSPrng<uint8_t> prng;
             // Trivium csprng;
             uint64_t streamByteLocation;
@@ -25,7 +25,7 @@ namespace MSCrypto{
             bool isSecure;
         public:
             OTPStreamCipherReceiver();
-            OTPStreamCipherReceiver(MType seed);
+            OTPStreamCipherReceiver(uint32_t seed);
             OTPStreamCipherReceiver(uint8_t *key, uint8_t *iv);
             MType parseMessage(uint64_t fullMessage);
             void resetStreamToLastValue();
@@ -38,7 +38,7 @@ MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::OTPStreamCipherRe
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
-MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::OTPStreamCipherReceiver(MType seed){
+MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::OTPStreamCipherReceiver(uint32_t seed){
     this->seed = seed;
     this->isSecure = false;
     this->prng = MSPrng<uint8_t>(0, 255, seed);
@@ -68,7 +68,7 @@ MType MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::parseMessag
     MType encodedMessage = fullMessage >> (8 * CSize);
     CType shortStreamByteLocation = (CType)(streamByteLocation % (uint64_t)pow(2, CSize * 8 ));
     CType missedMessages = MSCrypto::rolloverDifference<CType>(messageCountBytes, shortStreamByteLocation);
-    uint16_t maxMissedMessages = 100 * MSize;
+    uint16_t maxMissedMessages = 10 * MSize;
 
     if(missedMessages > maxMissedMessages || missedMessages % MSize != 0){
         return 0;
@@ -103,6 +103,8 @@ void MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::resetStreamT
         for(uint64_t i = 0; i < this->lastStreamByteLocation; i++){
             this->getRandomByte();
         }
+    }else{
+        this->streamByteLocation = this->lastStreamByteLocation;
     }
 }
 #endif
