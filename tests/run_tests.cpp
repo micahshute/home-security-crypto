@@ -1,5 +1,5 @@
 #include <iostream>
-#include "OTPStreamCipherTransmitterTest.h"
+// #include "OTPStreamCipherTransmitterTest.h"
 #include "OTPStreamCipherReceiverTest.h"
 #include "CircularStackTest.h"
 #include "MSPrngTest.h"
@@ -11,8 +11,8 @@ int main(){
     int totalTests = 0;
     int failedTests = 0;
 
-    OTPStreamCipherTransmitterTest otpStreamCipherTest;
-    totalTests++;
+    // OTPStreamCipherTransmitterTest otpStreamCipherTest;
+    // totalTests++;
     OTPStreamCipherReceiverTest otpStreamCipherReceiverTest;
     totalTests++;
     CircularStackTest circularStackTest;
@@ -23,9 +23,9 @@ int main(){
     totalTests++;
     TriviumTest triviumTest;
     totalTests++;
-    if(!otpStreamCipherTest.run()){
-        failedTests++;
-    }
+    // if(!otpStreamCipherTest.run()){
+    //     failedTests++;
+    // }
     if(!otpStreamCipherReceiverTest.run()){
         failedTests++;
     }

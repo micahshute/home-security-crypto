@@ -1,5 +1,7 @@
 #include "Trivium.h"
 
+MSCrypto::Trivium::Trivium(){};
+
 MSCrypto::Trivium::Trivium(uint8_t *key, uint8_t *iv){
     for(int i = 92; i >= 80; i--){
         register1.shift(0);

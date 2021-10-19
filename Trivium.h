@@ -12,6 +12,7 @@ namespace MSCrypto{
         public:
             // NOTE: key and iv should both be of length 80 
             // for a bit array but 81 for a char array
+            Trivium();
             Trivium(uint8_t *key, uint8_t *iv);
             Trivium(char *key, char *iv);
             struct RegisterState{

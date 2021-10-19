@@ -15,20 +15,17 @@ namespace MSCrypto{
     template <typename MType, size_t MSize, typename CType, size_t CSize>
     class OTPStreamCipherTransmitter{
         private: 
-            MSPrng<uint8_t> prng;
-            uint32_t seed;
+            MSCrypto::Trivium prng;
             uint8_t getRandomByte();
-        public: 
             CType streamByteLocation;
             OTPStreamCipherTransmitter();
-            OTPStreamCipherTransmitter(uint32_t seed);
+            OTPStreamCipherTransmitter(uint8_t* key, uint8_t* iv);
             uint8_t otpByte(uint8_t byte);
             MType otp(MType message);
             void getBytes(MType num, uint8_t byteCount, uint8_t* bytes);
             MType otpMessage(MType message);
             MType getNumberFromBytes(uint8_t* bytes);
-            CType getMessagesSentCount();
-            CType getByteMessageStartCount();
+        public: 
             uint64_t getMessageToTransmit(MType message); 
     };
 };
@@ -38,10 +35,9 @@ MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::OTPStreamCiphe
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
-MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::OTPStreamCipherTransmitter(uint32_t seed){
-    this->seed = seed;
+MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::OTPStreamCipherTransmitter(uint8_t* key, uint8_t* iv){
     this->streamByteLocation = 0;
-    this->prng = MSPrng<uint8_t>(0, 255, seed);
+    this->prng = MSCrypto::Trivium(key, iv);
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
@@ -76,10 +72,6 @@ MType MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::otpMessa
     return getNumberFromBytes(bytes);
 };
 
-template <typename MType, size_t MSize, typename CType, size_t CSize>
-CType MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getMessagesSentCount(){
-    return streamByteLocation / MSize;
-};
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
 uint64_t MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getMessageToTransmit(MType message){
@@ -96,8 +88,7 @@ uint64_t MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::getMe
     for(int i = 0; i < CSize; i++){
         fullMessage[i + MSize] = streamByteStartBytes[i];
     }
-    uint32_t test = (unsigned long long)MSCrypto::bytes2num((MSize + CSize), fullMessage);
-    return (unsigned long long)MSCrypto::bytes2num((MSize + CSize), fullMessage);
+    return (uint64_t)MSCrypto::bytes2num((MSize + CSize), fullMessage);
 };
 
 #endif

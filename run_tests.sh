@@ -1,6 +1,5 @@
 touch ./Arduino.h
 g++ -o test_suite ./tests/run_tests.cpp \
-    ./tests/OTPStreamCipherTransmitterTest.cpp \
     ./tests/OTPStreamCipherReceiverTest.cpp \
     ./tests/CircularStackTest.cpp \
     ./tests/MSPrngTest.cpp \

@@ -2,20 +2,41 @@
 #include "OTPStreamCipherReceiverTest.h"
 #include "../OTPStreamCipherTransmitter.h"
 #include "../OTPStreamCipherReceiver.h"
-#include "../StandardRandomStrategy.h"
+// #include "../StandardRandomStrategy.h"
+#include "../Trivium.h"
 
 int OTPStreamCipherReceiverTest::testParseMessage(){
     int result = 1;
+    uint8_t key[80] = {
+        1, 1, 0, 1, 0, 0, 1, 0, 1, 0,
+        0, 1, 0, 0, 1, 1, 1, 0, 1, 0,
+        0, 0, 0, 0, 1, 0, 1, 1, 0, 0,
+        0, 1, 1, 1, 0, 1, 0, 1, 1, 1,
+        1, 1, 1, 0, 1, 0, 0, 0, 0, 1,
+        1, 0, 0, 1, 1, 1, 0, 1, 0, 0,
+        0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 
+        0, 1, 1, 0, 1, 1, 1, 0, 0, 1
+    };
 
-    uint16_t iv = 23513;
-    uint16_t message = 8072;
+    uint8_t iv[80] = {
+        1, 0, 0, 1, 1, 0, 1, 1, 1, 1,
+        0, 1, 0, 0, 0, 1, 0, 0, 1, 0,
+        1, 1, 1, 0, 1, 0, 0, 1, 0, 1,
+        0, 1, 0, 0, 0, 1, 1, 1, 1, 0,
+        0, 0, 1, 1, 1, 0, 0, 1, 0, 1,
+        0, 0, 1, 1, 1, 0, 0, 1, 0, 0,
+        0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 
+        1, 1, 0, 0, 1, 0, 1, 1, 0, 1
+    };
 
-    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint16_t, 2>xmitter(iv);
-    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint16_t, 2>receiver(iv);
+    uint16_t message = 11873;
+
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 2>xmitter(key, iv);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 2>receiver(key, iv);
  
     // standard operation
 
-    for(int i = 0; i < 200; i++){
+    for(int i = 0; i < 100; i++){
         uint32_t xmittingMessage = (uint32_t)xmitter.getMessageToTransmit(message);
         uint16_t decodedMessage = receiver.parseMessage(xmittingMessage);
         if(decodedMessage != message){
@@ -28,7 +49,7 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
     // when a few messages are missed but not enough to invalidate the message
 
     // miss 23 messages
-    int messagesToMiss = 23;
+    int messagesToMiss = 3;
     for(int i = 0; i < messagesToMiss; i++){
         xmitter.getMessageToTransmit(message);
     }
@@ -38,19 +59,18 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
         uint16_t decodedMessage = receiver.parseMessage(xmittingMessage);
         if(decodedMessage != message){
             result = 0; 
-            std::cout << "FAILED after 23 missed messages: " << " Expeccted decoded message " << decodedMessage << " to equal sent message " << message << '\n'; 
+            std::cout << "FAILED after 3 missed messages: " << " Expeccted decoded message " << decodedMessage << " to equal sent message " << message << '\n'; 
             break;
         }
     }
 
     // miss max-1 more after catching up
-    for(int i = 0; i < 99; i++){
+    for(int i = 0; i < 14; i++){
         xmitter.getMessageToTransmit(message);
     }
-    // Current message count = 372; Current byte count = 744
-    // To get to rollover (2**16 bytes), need 32396 more msgs
-    // test through the rollover (should get to byte count = 4 aka msg count = 1)
-    for(uint16_t i = 0; i < 32397; i++){
+    // Current message count 167
+    // Test getting bytes through multiple rollovers
+    for(uint16_t i = 0; i < 1000; i++){
         uint32_t xmittingMessage = (uint32_t)xmitter.getMessageToTransmit(message);
         uint16_t decodedMessage = receiver.parseMessage(xmittingMessage);
         if(decodedMessage != message){
@@ -61,17 +81,20 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
     }
 
     // test missed messages through the rollover
-    // message count = 1 currently.
-    // max message count =  32768
-    // Do 32759 messages to get near rollover (8 away from rollover)
-    // Miss 20 messages (brings to 12 messages count)
-    // Successfully read 8 messages
+    // message count = 1167 
+    // Byte count = (1167 * 2) % 256 = 30  currently.
+    // max byte count =  255
+    // 226 more bytes to get to rollover (@256)
+    // get 3 msgs from rollover (6 bytes away -> 250 byte count)
+    // Do 110 messages to get to byte count = 250 (3 msgs from rollover)
+    // Miss 10 messages (byte count = 14; msgcount = 7)
+    // Successfully read 13 messages
     // This brings to 20 messages (after rollove)
     // Ensure missed messages over the rollover work correctly
     // 
 
 
-    for(uint16_t i = 0; i < 32759; i++){
+    for(uint16_t i = 0; i < 110; i++){
         uint32_t xmittingMessage = (uint32_t)xmitter.getMessageToTransmit(message);
         uint16_t decodedMessage = receiver.parseMessage(xmittingMessage);
         if(decodedMessage != message){
@@ -81,7 +104,7 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
         }
     }
     // miss messages during rollover
-    for(int i = 0; i < 20; i++){
+    for(int i = 0; i < 10; i++){
         xmitter.getMessageToTransmit(message);
     }
     // can we track it?
@@ -95,11 +118,23 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
         }
     }
 
+    //Let's check if count is properly lost over a rollover
     // now we are at 20. 
+    // get to 256 - 30 = 226
+    // need to do 206 bytes or 103 messages
+    for(uint16_t i = 0; i < 103; i++){
+        uint32_t xmittingMessage = (uint32_t)xmitter.getMessageToTransmit(message);
+        uint16_t decodedMessage = receiver.parseMessage(xmittingMessage);
+        if(decodedMessage != message){
+            result = 0; 
+            std::cout << "FAILED prepping failed rollover: " << " Expeccted decoded message " << decodedMessage << " to equal sent message " << message << '\n'; 
+            break;
+        }
+    }
 
     // do we correctly lose count over a rollover? 
-    // do max messages - 1 missed messages (32767)
-    for(uint16_t i = 0; i < 32767; i++){
+    // miss 16 messages over a rollover
+    for(uint16_t i = 0; i < 16; i++){
         xmitter.getMessageToTransmit(message);
     }
 
@@ -111,12 +146,12 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
     }
 
     // RESET 
-    // Make sure it fails after 101 failed messages
+    // Make sure it fails after 16 failed messages
 
-    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint16_t, 2>xmitter2(iv);
-    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint16_t, 2>receiver2(iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint16_t, 2>xmitter2(key, iv);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint16_t, 2>receiver2(key, iv);
 
-    for(int i = 0; i < 101; i++){
+    for(int i = 0; i < 16; i++){
         xmitter2.getMessageToTransmit(message);
     }
     
@@ -133,10 +168,10 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
     // RESET
     // Make sure after max+(>= 1 or < 100) messages the message is wrong
 
-    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint16_t, 2>xmitter3(iv);
-    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint16_t, 2>receiver3(iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint16_t, 2>xmitter3(key, iv);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint16_t, 2>receiver3(key, iv);
 
-    for(int i = 0; i < 32790; i++){
+    for(int i = 0; i < 130; i++){
         xmitter3.getMessageToTransmit(message);
     }
     for(uint16_t i = 0; i < 8; i++){
@@ -160,11 +195,32 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
 int OTPStreamCipherReceiverTest::testResetStreamToLastValue(){
     int result = 1;
 
-    uint16_t iv = 23513;
+    uint8_t key[80] = {
+        1, 1, 0, 1, 0, 0, 1, 0, 1, 0,
+        0, 1, 0, 0, 1, 1, 1, 0, 1, 0,
+        0, 0, 0, 0, 1, 0, 1, 1, 0, 0,
+        0, 1, 1, 1, 0, 1, 0, 1, 1, 1,
+        1, 1, 1, 0, 1, 0, 0, 0, 0, 1,
+        1, 0, 0, 1, 1, 1, 0, 1, 0, 0,
+        0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 
+        0, 1, 1, 0, 1, 1, 1, 0, 0, 1
+    };
+
+    uint8_t iv[80] = {
+        1, 0, 0, 1, 1, 0, 1, 1, 1, 1,
+        0, 1, 0, 0, 0, 1, 0, 0, 1, 0,
+        1, 1, 1, 0, 1, 0, 0, 1, 0, 1,
+        0, 1, 0, 0, 0, 1, 1, 1, 1, 0,
+        0, 0, 1, 1, 1, 0, 0, 1, 0, 1,
+        0, 0, 1, 1, 1, 0, 0, 1, 0, 0,
+        0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 
+        1, 1, 0, 0, 1, 0, 1, 1, 0, 1
+    };
+
     uint16_t message = 8072;
 
-    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter(iv);
-    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver(iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter(key, iv);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver(key, iv);
 
     // Run 100 times
     // send a faulty message
@@ -217,8 +273,8 @@ int OTPStreamCipherReceiverTest::testResetStreamToLastValue(){
 
     // Now, let's do it but reset the receiver when we realized the message was spoofed:
 
-    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter2(iv);
-    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver2(iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter2(key, iv);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver2(key, iv);
 
     // Run 100 times
     // send a faulty message
@@ -236,7 +292,7 @@ int OTPStreamCipherReceiverTest::testResetStreamToLastValue(){
     }
     
     // faked message -> last byte (messageStreamLocation) must 
-    // be within 100 of the last sent message. Let's make it 218
+    // be within 30 of the last sent message. Let's make it 218
     // 10101010 10101010 11011010 = 170 170 218 = 11184858 
     // First 2 bytes don't matter, the last one determines if it will be "used"
     uint32_t fakedMessage2 = 11184858;
