@@ -7,17 +7,18 @@
     #include <cmath>
     using namespace std;
 #endif
+#include "Trivium.h"
 #include "MSCrypto.h"
 #include "MSPrng.h"
-#include "Trivium.h"
 
 namespace MSCrypto{
 
     template <typename MType, size_t MSize, typename CType, size_t CSize>
     class OTPStreamCipherReceiver{
         private:
-            MSCrypto::Trivium prng;
+            Trivium prng;
             CType streamByteLocation;
+            CType lastStreamByteLocation;
             uint8_t getRandomByte();
             bool isSecure;
         public:
@@ -36,7 +37,7 @@ MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::OTPStreamCipherRe
 template <typename MType, size_t MSize, typename CType, size_t CSize>
 MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::OTPStreamCipherReceiver(uint8_t* key, uint8_t* iv){
     this->isSecure = true;
-    this->prng = MSCrypto::Trivium(key, iv);
+    this->prng = Trivium(key, iv);
     this->streamByteLocation = 0;
 };
 
@@ -51,15 +52,16 @@ MType MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::parseMessag
     CType maxMessageCountNum = (CType)(pow(2, 8*CSize) - 1);
     CType messageCountBytes = fullMessage & maxMessageCountNum;
     MType encodedMessage = fullMessage >> (8 * CSize);
+
     CType missedMessages = MSCrypto::rolloverDifference<CType>(messageCountBytes, streamByteLocation);
     uint16_t maxMissedMessages = 15 * MSize;
-
 
     if(missedMessages > maxMissedMessages || missedMessages % MSize != 0){
         return 0;
     }
 
     this->prng.cacheState();
+    this->lastStreamByteLocation = this->streamByteLocation;
 
     // Re-sync steam cipher
     for(CType i = 0; i < missedMessages; i++){
@@ -81,5 +83,7 @@ MType MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::parseMessag
 template <typename MType, size_t MSize, typename CType, size_t CSize>
 void MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::resetStreamToLastValue(){
     this->prng.revert();
+    this->streamByteLocation = this->lastStreamByteLocation;
+    this->lastStreamByteLocation = this->streamByteLocation;
 }
 #endif

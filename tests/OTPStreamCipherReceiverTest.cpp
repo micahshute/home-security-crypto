@@ -31,8 +31,8 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
 
     uint16_t message = 11873;
 
-    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 2>xmitter(key, iv);
-    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 2>receiver(key, iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter(key, iv);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver(key, iv);
  
     // standard operation
 
@@ -148,8 +148,8 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
     // RESET 
     // Make sure it fails after 16 failed messages
 
-    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint16_t, 2>xmitter2(key, iv);
-    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint16_t, 2>receiver2(key, iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter2(key, iv);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver2(key, iv);
 
     for(int i = 0; i < 16; i++){
         xmitter2.getMessageToTransmit(message);
@@ -168,8 +168,8 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
     // RESET
     // Make sure after max+(>= 1 or < 100) messages the message is wrong
 
-    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint16_t, 2>xmitter3(key, iv);
-    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint16_t, 2>receiver3(key, iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter3(key, iv);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver3(key, iv);
 
     for(int i = 0; i < 130; i++){
         xmitter3.getMessageToTransmit(message);
@@ -307,7 +307,7 @@ int OTPStreamCipherReceiverTest::testResetStreamToLastValue(){
 
     // Expect the xmitter and receiver to be re-synced now:
     uint32_t correctXmittingMessage = (uint32_t)xmitter2.getMessageToTransmit(message);
-    uint16_t correctDecodedMessage = receiver2.parseMessage(failedXmittingMessage);
+    uint16_t correctDecodedMessage = receiver2.parseMessage(correctXmittingMessage);
     // Expeect ddecodedMessage to be 0
     if(correctDecodedMessage != message){
         result = 0;
@@ -317,13 +317,33 @@ int OTPStreamCipherReceiverTest::testResetStreamToLastValue(){
     // TEST when number is added to ID
     for(int i = 0; i < 500; i++){
         uint32_t xmitCode = xmitter2.getMessageToTransmit(message);
-        std::cout << " xmitCode: " << xmitCode << ' ';
         xmitCode = xmitCode << 8; // add ID
-        std::cout << " with id: " << xmitCode << " ";
-        std::cout << "stream location " << ((xmitCode >> 8) & 255) << '\n';
         uint16_t decodedMessage =  receiver2.parseMessage(xmitCode >> 8);
         if(decodedMessage != message){
+            result = 0;
             std::cout << "FAILED: with added id, expected decoded message to be " << message << " but it was " << decodedMessage << '\n';
+            break;
+        }
+    }
+
+
+    // Works with multiple resends
+
+    for(int i = 0; i < 1000; i++){
+        uint32_t xmitCode = xmitter2.getMessageToTransmit(message);
+        uint16_t decodedMessage = receiver2.parseMessage(xmitCode);
+        if(decodedMessage != message){
+            result = 0;
+            std::cout << "\tFAILED: expected decoded message " << decodedMessage << " to equal message " << message << '\n'; 
+            break;
+        }
+        for(int i = 0; i < 9; i++){
+            uint16_t decodedRepeatMessage = receiver2.parseMessage(xmitCode);
+            if(decodedRepeatMessage != 0){
+                result = 0;
+                std::cout << "\tFAILED: expected decoded message " << decodedMessage << " to equal 0\n";
+                break;
+            }
         }
     }
 
