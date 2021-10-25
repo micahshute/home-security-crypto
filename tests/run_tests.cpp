@@ -5,6 +5,8 @@
 #include "MSPrngTest.h"
 #include "ShiftRegisterTest.h"
 #include "TriviumTest.h"
+#include "CShiftRegisterTest.h"
+#include "CTriviumTest.h"
 
 int main(){
     std::cout << "\n\n\n";
@@ -13,6 +15,9 @@ int main(){
 
     // OTPStreamCipherTransmitterTest otpStreamCipherTest;
     // totalTests++;
+
+    CShiftRegisterTest cShiftRegisterTest;
+    totalTests++;
     OTPStreamCipherReceiverTest otpStreamCipherReceiverTest;
     totalTests++;
     CircularStackTest circularStackTest;
@@ -22,6 +27,8 @@ int main(){
     ShiftRegisterTest shiftRegisterTest;
     totalTests++;
     TriviumTest triviumTest;
+    totalTests++;
+    CTriviumTest cTriviumTest;
     totalTests++;
     // if(!otpStreamCipherTest.run()){
     //     failedTests++;
@@ -38,7 +45,13 @@ int main(){
     if(!shiftRegisterTest.run()){
         failedTests++;
     }
+    if(!cShiftRegisterTest.run()){
+        failedTests++;
+    }
     if(!triviumTest.run()){
+        failedTests++;
+    }
+    if(!cTriviumTest.run()){
         failedTests++;
     }
 

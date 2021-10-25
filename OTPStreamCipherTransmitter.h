@@ -10,13 +10,13 @@
 
 #include "MSPrng.h"
 #include "MSCrypto.h"
-#include "Trivium.h"
+#include "CTrivium.h"
 
 namespace MSCrypto{
     template <typename MType, size_t MSize, typename CType, size_t CSize>
     class OTPStreamCipherTransmitter{
         private: 
-            Trivium prng;
+            CTrivium prng;
             uint8_t getRandomByte();
             CType streamByteLocation;
             uint8_t otpByte(uint8_t byte);
@@ -38,7 +38,7 @@ MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::OTPStreamCiphe
 template <typename MType, size_t MSize, typename CType, size_t CSize>
 MSCrypto::OTPStreamCipherTransmitter<MType, MSize, CType, CSize>::OTPStreamCipherTransmitter(uint8_t* key, uint8_t* iv){
     this->streamByteLocation = 0;
-    this->prng = Trivium(key, iv);
+    this->prng = CTrivium(key, iv, true);
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>

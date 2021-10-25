@@ -10,29 +10,36 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
     uint8_t key[80] = {
         1, 1, 0, 1, 0, 0, 1, 0, 1, 0,
         0, 1, 0, 0, 1, 1, 1, 0, 1, 0,
-        0, 0, 0, 0, 1, 0, 1, 1, 0, 0,
+        0, 0, 0, 1, 1, 0, 1, 1, 0, 0,
         0, 1, 1, 1, 0, 1, 0, 1, 1, 1,
-        1, 1, 1, 0, 1, 0, 0, 0, 0, 1,
-        1, 0, 0, 1, 1, 1, 0, 1, 0, 0,
-        0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 
-        0, 1, 1, 0, 1, 1, 1, 0, 0, 1
+        1, 1, 1, 0, 1, 1, 0, 0, 0, 1,
+        1, 0, 0, 1, 0, 1, 0, 1, 0, 0,
+        0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 
+        0, 1, 1, 0, 1, 1, 0, 0, 0, 1
     };
 
     uint8_t iv[80] = {
         1, 0, 0, 1, 1, 0, 1, 1, 1, 1,
         0, 1, 0, 0, 0, 1, 0, 0, 1, 0,
         1, 1, 1, 0, 1, 0, 0, 1, 0, 1,
-        0, 1, 0, 0, 0, 1, 1, 1, 1, 0,
+        0, 1, 0, 0, 0, 1, 1, 0, 1, 0,
         0, 0, 1, 1, 1, 0, 0, 1, 0, 1,
         0, 0, 1, 1, 1, 0, 0, 1, 0, 0,
         0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 
         1, 1, 0, 0, 1, 0, 1, 1, 0, 1
     };
 
+    uint8_t ckey[10] = {
+        210, 147, 161, 177, 215, 236, 101, 69, 173, 177
+    };
+    uint8_t civ[10] = {
+        155, 209, 46, 149, 26, 57, 78, 66, 183, 45
+    };
+
     uint16_t message = 11873;
 
-    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter(key, iv);
-    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver(key, iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter(ckey, civ);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver(ckey, civ);
  
     // standard operation
 
@@ -149,7 +156,7 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
     // Make sure it fails after 16 failed messages
 
     MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter2(key, iv);
-    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver2(key, iv);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver2(ckey, civ);
 
     for(int i = 0; i < 16; i++){
         xmitter2.getMessageToTransmit(message);
@@ -168,8 +175,8 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
     // RESET
     // Make sure after max+(>= 1 or < 100) messages the message is wrong
 
-    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter3(key, iv);
-    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver3(key, iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter3(ckey, civ);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver3(ckey, civ);
 
     for(int i = 0; i < 130; i++){
         xmitter3.getMessageToTransmit(message);
@@ -198,29 +205,36 @@ int OTPStreamCipherReceiverTest::testResetStreamToLastValue(){
     uint8_t key[80] = {
         1, 1, 0, 1, 0, 0, 1, 0, 1, 0,
         0, 1, 0, 0, 1, 1, 1, 0, 1, 0,
-        0, 0, 0, 0, 1, 0, 1, 1, 0, 0,
+        0, 0, 0, 1, 1, 0, 1, 1, 0, 0,
         0, 1, 1, 1, 0, 1, 0, 1, 1, 1,
-        1, 1, 1, 0, 1, 0, 0, 0, 0, 1,
-        1, 0, 0, 1, 1, 1, 0, 1, 0, 0,
-        0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 
-        0, 1, 1, 0, 1, 1, 1, 0, 0, 1
+        1, 1, 1, 0, 1, 1, 0, 0, 0, 1,
+        1, 0, 0, 1, 0, 1, 0, 1, 0, 0,
+        0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 
+        0, 1, 1, 0, 1, 1, 0, 0, 0, 1
     };
 
     uint8_t iv[80] = {
         1, 0, 0, 1, 1, 0, 1, 1, 1, 1,
         0, 1, 0, 0, 0, 1, 0, 0, 1, 0,
         1, 1, 1, 0, 1, 0, 0, 1, 0, 1,
-        0, 1, 0, 0, 0, 1, 1, 1, 1, 0,
+        0, 1, 0, 0, 0, 1, 1, 0, 1, 0,
         0, 0, 1, 1, 1, 0, 0, 1, 0, 1,
         0, 0, 1, 1, 1, 0, 0, 1, 0, 0,
         0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 
         1, 1, 0, 0, 1, 0, 1, 1, 0, 1
     };
 
+    uint8_t ckey[10] = {
+        210, 147, 161, 177, 215, 236, 101, 69, 173, 177
+    };
+    uint8_t civ[10] = {
+        155, 209, 46, 149, 26, 57, 78, 66, 183, 45
+    };
+
     uint16_t message = 8072;
 
-    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter(key, iv);
-    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver(key, iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter(ckey, civ);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver(ckey, civ);
 
     // Run 100 times
     // send a faulty message
@@ -273,8 +287,8 @@ int OTPStreamCipherReceiverTest::testResetStreamToLastValue(){
 
     // Now, let's do it but reset the receiver when we realized the message was spoofed:
 
-    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter2(key, iv);
-    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver2(key, iv);
+    MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter2(ckey, civ);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver2(ckey, civ);
 
     // Run 100 times
     // send a faulty message

@@ -7,16 +7,15 @@
     #include <cmath>
     using namespace std;
 #endif
-#include "Trivium.h"
+#include "CTrivium.h"
 #include "MSCrypto.h"
-#include "MSPrng.h"
 
 namespace MSCrypto{
 
     template <typename MType, size_t MSize, typename CType, size_t CSize>
     class OTPStreamCipherReceiver{
         private:
-            Trivium prng;
+            CTrivium prng;
             CType streamByteLocation;
             CType lastStreamByteLocation;
             uint8_t getRandomByte();
@@ -30,14 +29,12 @@ namespace MSCrypto{
 };
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
-MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::OTPStreamCipherReceiver(){
-
-};
+MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::OTPStreamCipherReceiver(){};
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
 MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::OTPStreamCipherReceiver(uint8_t* key, uint8_t* iv){
     this->isSecure = true;
-    this->prng = Trivium(key, iv);
+    this->prng = CTrivium(key, iv, true);
     this->streamByteLocation = 0;
 };
 
@@ -56,7 +53,17 @@ MType MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::parseMessag
     CType missedMessages = MSCrypto::rolloverDifference<CType>(messageCountBytes, streamByteLocation);
     uint16_t maxMissedMessages = 15 * MSize;
 
-    if(missedMessages > maxMissedMessages || missedMessages % MSize != 0){
+    Serial.println("My Stream Location: ");
+    Serial.println(streamByteLocation);
+
+    if(missedMessages > maxMissedMessages || messageCountBytes % MSize != 0){
+        Serial.println("Returing 0...");
+        Serial.print("Missed Msgs: ");
+        Serial.println(missedMessages);
+        Serial.print("Message count mod: ");
+        Serial.println(messageCountBytes % MSize);
+        Serial.print("My stream location: ");
+        Serial.println((int)streamByteLocation);
         return 0;
     }
 
@@ -67,6 +74,9 @@ MType MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::parseMessag
     for(CType i = 0; i < missedMessages; i++){
         getRandomByte();
     }
+
+    Serial.print("Catching up, now sbl is: ");
+    Serial.println((int)streamByteLocation);
 
     // Get one-time pad
     MType otpKey = 0;

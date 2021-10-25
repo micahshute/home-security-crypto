@@ -11,6 +11,8 @@
 namespace MSCrypto{
     uint64_t bytes2num(uint8_t byteCount, uint8_t *bytes);
     void num2bytes(uint64_t num, uint8_t byteCount, uint8_t *bytes);
+    uint64_t bits2num(uint8_t bitLen, uint8_t* bits);
+    void num2bits(uint64_t num, uint8_t bitLen, uint8_t* bits);
     template <typename T> 
     T rolloverDifference(T largerNum, T smallerNum);
 };
