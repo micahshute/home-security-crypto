@@ -1,4 +1,3 @@
-
 #ifndef SHIFT_REGISTER_TEST
 #define SHIFT_REGISTER_TEST
 
