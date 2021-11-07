@@ -39,7 +39,9 @@ int OTPStreamCipherReceiverTest::testParseMessage(){
     uint16_t message = 11873;
 
     MSCrypto::OTPStreamCipherTransmitter<uint16_t, 2, uint8_t, 1>xmitter(ckey, civ);
-    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver(ckey, civ);
+    // MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver(ckey, civ);
+    MSCrypto::OTPStreamCipherReceiver<uint16_t, 2, uint8_t, 1>receiver;
+    receiver.setupCipher(ckey, civ);
  
     // standard operation
 
