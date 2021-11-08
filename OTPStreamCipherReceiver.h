@@ -50,8 +50,6 @@ void MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::setupCipher(
 
 template <typename MType, size_t MSize, typename CType, size_t CSize>
 uint8_t MSCrypto::OTPStreamCipherReceiver<MType, MSize, CType, CSize>::getRandomByte(){
-    // Serial.println("Getting byte...");
-    // Serial.println(streamByteLocation);
     this->streamByteLocation++;
     return this->prng.get();
 }
