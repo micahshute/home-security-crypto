@@ -11,7 +11,8 @@
 #include "MSCrypto.h"
 
 namespace MSCrypto{
-
+    // MSize is the size of the encrypted portion of the message
+    // CSize is the size of the clear portion of the message
     template <typename MType, size_t MSize, typename CType, size_t CSize>
     class OTPStreamCipherReceiver{
         private:
